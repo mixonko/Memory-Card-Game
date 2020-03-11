@@ -1,5 +1,8 @@
 package com.mixonko.android.memorycardgame
 
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,8 +11,14 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.isVisible
+import androidx.appcompat.app.AlertDialog
+import android.content.Context.VIBRATOR_SERVICE
+import androidx.core.content.ContextCompat.getSystemService
+import android.os.Vibrator
+import androidx.core.app.ComponentActivity.ExtraData
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,8 +58,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var imageView43: ImageView
     lateinit var imageView44: ImageView
 
-    lateinit var pointsTextView: TextView
-    lateinit var topPointsTextView: TextView
+    lateinit var firstPointsTextView: TextView
+    lateinit var secondPointsTextView: TextView
 
     var firstCard: Int? = 0
     var secondCard: Int? = 0
@@ -60,12 +69,15 @@ class MainActivity : AppCompatActivity() {
 
     var cardNumber: Int = 1
 
-    var turn: Int? = 0
-    var points: Int = 0
-    var topPoints: Int = 0
+    var turn: Int = 1
+    var firstPlayerPoints: Int = 0
+    var secondPlayerPoints: Int = 0
+
+    var checkEndGame = 0
 
     val cardsArray =
         mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,8 +100,10 @@ class MainActivity : AppCompatActivity() {
         imageView43 = findViewById(R.id.imageView43)
         imageView44 = findViewById(R.id.imageView44)
 
-        pointsTextView = findViewById(R.id.points)
-        topPointsTextView = findViewById(R.id.topPoints)
+        firstPointsTextView = findViewById(R.id.points)
+        secondPointsTextView = findViewById(R.id.topPoints)
+        firstPointsTextView.setTextColor(Color.BLACK)
+        secondPointsTextView.setTextColor(Color.GRAY)
 
         imageView11.setTag(0)
         imageView12.setTag(1)
@@ -108,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         imageView43.setTag(14)
         imageView44.setTag(15)
 
-//        Collections.shuffle(cardsArray)
+        Collections.shuffle(cardsArray)
 
         setOnClickListener()
     }
@@ -182,7 +196,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doStuff(imageView: ImageView, card: Int) {
-        when (cardsArray[card]){
+        val vibe = this@MainActivity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        vibe.vibrate(40)
+        when (cardsArray[card]) {
             11 -> imageView.setImageResource(image11)
             12 -> imageView.setImageResource(image12)
             13 -> imageView.setImageResource(image13)
@@ -202,9 +218,9 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        if(cardNumber == 1){
+        if (cardNumber == 1) {
             firstCard = cardsArray[card]
-            if (firstCard!! > 20){
+            if (firstCard!! > 20) {
                 firstCard = firstCard!! - 10
             }
 
@@ -213,43 +229,29 @@ class MainActivity : AppCompatActivity() {
 
             imageView.isEnabled = false
 
-        }else if (cardNumber == 2){
+        } else if (cardNumber == 2) {
             secondCard = cardsArray[card]
-            if (secondCard!! > 20){
+            if (secondCard!! > 20) {
                 secondCard = secondCard!! - 10
             }
             cardNumber = 1
             clickedSecond = card
 
-            imageView11.isEnabled = false
-            imageView12.isEnabled = false
-            imageView13.isEnabled = false
-            imageView14.isEnabled = false
-            imageView21.isEnabled = false
-            imageView22.isEnabled = false
-            imageView23.isEnabled = false
-            imageView24.isEnabled = false
-            imageView31.isEnabled = false
-            imageView32.isEnabled = false
-            imageView33.isEnabled = false
-            imageView34.isEnabled = false
-            imageView41.isEnabled = false
-            imageView42.isEnabled = false
-            imageView43.isEnabled = false
-            imageView44.isEnabled = false
+            imageViewIsEnabled(false)
 
             val handler = Handler()
             handler.postDelayed(Runnable {
                 calculate()
-            },500)
+            }, 500)
 
         }
 
     }
 
     private fun calculate() {
-        if (firstCard == secondCard){
-            when (clickedFirst){
+        if (firstCard == secondCard) {
+            checkEndGame++
+            when (clickedFirst) {
                 0 -> imageView11.visibility = View.INVISIBLE
                 1 -> imageView12.visibility = View.INVISIBLE
                 2 -> imageView13.visibility = View.INVISIBLE
@@ -260,15 +262,15 @@ class MainActivity : AppCompatActivity() {
                 7 -> imageView24.visibility = View.INVISIBLE
                 8 -> imageView31.visibility = View.INVISIBLE
                 9 -> imageView32.visibility = View.INVISIBLE
-                10 ->imageView33.visibility = View.INVISIBLE
-                11 ->imageView34.visibility = View.INVISIBLE
-                12 ->imageView41.visibility = View.INVISIBLE
-                13 ->imageView42.visibility = View.INVISIBLE
-                14 ->imageView43.visibility = View.INVISIBLE
-                15 ->imageView44.visibility = View.INVISIBLE
+                10 -> imageView33.visibility = View.INVISIBLE
+                11 -> imageView34.visibility = View.INVISIBLE
+                12 -> imageView41.visibility = View.INVISIBLE
+                13 -> imageView42.visibility = View.INVISIBLE
+                14 -> imageView43.visibility = View.INVISIBLE
+                15 -> imageView44.visibility = View.INVISIBLE
             }
 
-            when (clickedSecond){
+            when (clickedSecond) {
                 0 -> imageView11.visibility = View.INVISIBLE
                 1 -> imageView12.visibility = View.INVISIBLE
                 2 -> imageView13.visibility = View.INVISIBLE
@@ -279,64 +281,89 @@ class MainActivity : AppCompatActivity() {
                 7 -> imageView24.visibility = View.INVISIBLE
                 8 -> imageView31.visibility = View.INVISIBLE
                 9 -> imageView32.visibility = View.INVISIBLE
-                10 ->imageView33.visibility = View.INVISIBLE
-                11 ->imageView34.visibility = View.INVISIBLE
-                12 ->imageView41.visibility = View.INVISIBLE
-                13 ->imageView42.visibility = View.INVISIBLE
-                14 ->imageView43.visibility = View.INVISIBLE
-                15 ->imageView44.visibility = View.INVISIBLE
+                10 -> imageView33.visibility = View.INVISIBLE
+                11 -> imageView34.visibility = View.INVISIBLE
+                12 -> imageView41.visibility = View.INVISIBLE
+                13 -> imageView42.visibility = View.INVISIBLE
+                14 -> imageView43.visibility = View.INVISIBLE
+                15 -> imageView44.visibility = View.INVISIBLE
             }
 
-            if (turn == 1){
-                points++
-                pointsTextView.setText("$points")
-            }else if(turn == 2){
-                topPoints++
-                topPointsTextView.setText("$topPoints")
+            checkEndGame()
+
+            if (turn == 1) {
+                firstPlayerPoints++
+                firstPointsTextView.setText("$firstPlayerPoints")
+            } else if (turn == 2) {
+                secondPlayerPoints++
+                secondPointsTextView.setText("$secondPlayerPoints")
             }
         } else {
             imageView11.setImageResource(cardBack)
-                imageView12.setImageResource(cardBack)
-                imageView13.setImageResource(cardBack)
-                imageView14.setImageResource(cardBack)
-                imageView21.setImageResource(cardBack)
-                imageView22.setImageResource(cardBack)
-                imageView23.setImageResource(cardBack)
-                imageView24.setImageResource(cardBack)
-                imageView31.setImageResource(cardBack)
-                imageView32.setImageResource(cardBack)
-                imageView33.setImageResource(cardBack)
-                imageView34.setImageResource(cardBack)
-                imageView41.setImageResource(cardBack)
-                imageView42.setImageResource(cardBack)
-                imageView43.setImageResource(cardBack)
-                imageView44.setImageResource(cardBack)
+            imageView12.setImageResource(cardBack)
+            imageView13.setImageResource(cardBack)
+            imageView14.setImageResource(cardBack)
+            imageView21.setImageResource(cardBack)
+            imageView22.setImageResource(cardBack)
+            imageView23.setImageResource(cardBack)
+            imageView24.setImageResource(cardBack)
+            imageView31.setImageResource(cardBack)
+            imageView32.setImageResource(cardBack)
+            imageView33.setImageResource(cardBack)
+            imageView34.setImageResource(cardBack)
+            imageView41.setImageResource(cardBack)
+            imageView42.setImageResource(cardBack)
+            imageView43.setImageResource(cardBack)
+            imageView44.setImageResource(cardBack)
 
-
+            if (turn == 1) {
+                turn = 2
+                firstPointsTextView.setTextColor(Color.GRAY)
+                secondPointsTextView.setTextColor(Color.BLACK)
+            } else if (turn == 2) {
+                turn = 1
+                firstPointsTextView.setTextColor(Color.BLACK)
+                secondPointsTextView.setTextColor(Color.GRAY)
+            }
         }
-        imageView11.isEnabled = true
-        imageView12.isEnabled = true
-        imageView13.isEnabled = true
-        imageView14.isEnabled = true
-        imageView21.isEnabled = true
-        imageView22.isEnabled = true
-        imageView23.isEnabled = true
-        imageView24.isEnabled = true
-        imageView31.isEnabled = true
-        imageView32.isEnabled = true
-        imageView33.isEnabled = true
-        imageView34.isEnabled = true
-        imageView41.isEnabled = true
-        imageView42.isEnabled = true
-        imageView43.isEnabled = true
-        imageView44.isEnabled = true
-
-        chechEndGame()
+        imageViewIsEnabled(true)
 
     }
 
-    private fun chechEndGame() {
+    private fun imageViewIsEnabled(b: Boolean) {
+        imageView11.isEnabled = b
+        imageView12.isEnabled = b
+        imageView13.isEnabled = b
+        imageView14.isEnabled = b
+        imageView21.isEnabled = b
+        imageView22.isEnabled = b
+        imageView23.isEnabled = b
+        imageView24.isEnabled = b
+        imageView31.isEnabled = b
+        imageView32.isEnabled = b
+        imageView33.isEnabled = b
+        imageView34.isEnabled = b
+        imageView41.isEnabled = b
+        imageView42.isEnabled = b
+        imageView43.isEnabled = b
+        imageView44.isEnabled = b
+    }
 
+    private fun checkEndGame() {
+        if (checkEndGame == 1) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.game_over)
+                .setPositiveButton(
+                    R.string.new_game,
+                    DialogInterface.OnClickListener { dialog, which ->
+                        val intent = Intent(this@MainActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    })
+                .setNegativeButton(R.string.exit, DialogInterface.OnClickListener { dialog, which ->
+                    finish()
+                }).show()
+        }
     }
 
 }
