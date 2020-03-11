@@ -330,8 +330,13 @@ class MainActivity : AppCompatActivity() {
         imageView42.isEnabled = true
         imageView43.isEnabled = true
         imageView44.isEnabled = true
-  
+
+        chechEndGame()
+
     }
 
+    private fun chechEndGame() {
+
+    }
 
 }
