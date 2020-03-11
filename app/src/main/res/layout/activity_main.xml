@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+    android:orientation="vertical" >
 
-    <include
-        layout="@layout/images"
+        <TextView
+            android:id="@+id/points"
+            style="@style/PointsTextView"
+            android:layout_gravity="left"
+            android:text="0" />
+
+        <TextView
+            android:id="@+id/topPoints"
+            style="@style/PointsTextView"
+            android:layout_gravity="right"
+            android:text="0" />
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="400dp" />
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <include
+            layout="@layout/images"
+            android:layout_width="match_parent"
+            android:layout_height="500dp" />
+
+    </LinearLayout>
+
+
+</FrameLayout>

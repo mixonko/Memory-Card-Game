@@ -23,6 +23,14 @@
         <item name="riv_corner_radius">10dp</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:padding">5dp</item>
+        <item name="android:src">@drawable/card_back</item>
+    </style>
+
+    <style name="PointsTextView" >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:layout_margin">15sp</item>
     </style>
 
 </resources>

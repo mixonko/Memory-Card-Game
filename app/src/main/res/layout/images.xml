@@ -11,20 +11,20 @@
         style="@style/LinearLayout">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView11"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView12"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView13"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView14"
+            style="@style/ImageView" />
 
         </LinearLayout>
 
@@ -32,20 +32,20 @@
         style="@style/LinearLayout">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView21"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView22"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView23"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView24"
+            style="@style/ImageView" />
 
     </LinearLayout>
 
@@ -53,20 +53,20 @@
         style="@style/LinearLayout">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView31"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView32"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView33"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView34"
+            style="@style/ImageView" />
 
     </LinearLayout>
 
@@ -74,20 +74,20 @@
         style="@style/LinearLayout">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView41"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView42"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView43"
+            style="@style/ImageView" />
 
         <com.makeramen.roundedimageview.RoundedImageView
-            style="@style/ImageView"
-            android:src="@drawable/card"/>
+            android:id="@+id/imageView44"
+            style="@style/ImageView" />
 
     </LinearLayout>
 
