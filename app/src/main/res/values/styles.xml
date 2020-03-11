@@ -33,4 +33,19 @@
         <item name="android:layout_margin">15sp</item>
     </style>
 
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/card_back</item>
+    </style>
+
+    <style name="Buttons" >
+        <item name="android:layout_width">270dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:layout_margin">15dp</item>
+        <item name="android:background">@drawable/buttonshape</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
 </resources>

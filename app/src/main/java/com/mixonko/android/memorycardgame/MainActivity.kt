@@ -10,15 +10,15 @@ import android.os.Handler
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import android.content.Context.VIBRATOR_SERVICE
-import androidx.core.content.ContextCompat.getSystemService
 import android.os.Vibrator
-import androidx.core.app.ComponentActivity.ExtraData
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import java.util.*
+import android.animation.ObjectAnimator
+import android.view.View.TRANSLATION_Y
+import android.widget.LinearLayout
+import android.view.animation.*
+import android.widget.ImageSwitcher
 
+var backgroundStyle = 1
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +41,11 @@ class MainActivity : AppCompatActivity() {
     val image27 = R.drawable.ic_image27
     val image28 = R.drawable.ic_image28
 
+    val background1 = R.drawable.background1
+    val background2 = R.drawable.background2
+    val background3= R.drawable.background3
+    val background4= R.drawable.background4
+
     lateinit var imageView11: ImageView
     lateinit var imageView12: ImageView
     lateinit var imageView13: ImageView
@@ -57,6 +62,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var imageView42: ImageView
     lateinit var imageView43: ImageView
     lateinit var imageView44: ImageView
+
+    lateinit var background: ImageView
+
+    lateinit var line1: LinearLayout
+    lateinit var line2: LinearLayout
+    lateinit var line3: LinearLayout
+    lateinit var line4: LinearLayout
 
     lateinit var firstPointsTextView: TextView
     lateinit var secondPointsTextView: TextView
@@ -83,25 +95,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        imageView11 = findViewById(R.id.imageView11)
-        imageView12 = findViewById(R.id.imageView12)
-        imageView13 = findViewById(R.id.imageView13)
-        imageView14 = findViewById(R.id.imageView14)
-        imageView21 = findViewById(R.id.imageView21)
-        imageView22 = findViewById(R.id.imageView22)
-        imageView23 = findViewById(R.id.imageView23)
-        imageView24 = findViewById(R.id.imageView24)
-        imageView31 = findViewById(R.id.imageView31)
-        imageView32 = findViewById(R.id.imageView32)
-        imageView33 = findViewById(R.id.imageView33)
-        imageView34 = findViewById(R.id.imageView34)
-        imageView41 = findViewById(R.id.imageView41)
-        imageView42 = findViewById(R.id.imageView42)
-        imageView43 = findViewById(R.id.imageView43)
-        imageView44 = findViewById(R.id.imageView44)
+        findViewById()
 
-        firstPointsTextView = findViewById(R.id.points)
-        secondPointsTextView = findViewById(R.id.topPoints)
+        startAnimation()
+
+
         firstPointsTextView.setTextColor(Color.BLACK)
         secondPointsTextView.setTextColor(Color.GRAY)
 
@@ -122,9 +120,63 @@ class MainActivity : AppCompatActivity() {
         imageView43.setTag(14)
         imageView44.setTag(15)
 
-        Collections.shuffle(cardsArray)
+//        Collections.shuffle(cardsArray)
 
         setOnClickListener()
+    }
+
+    private fun startAnimation() {
+        val bounceInterpolator  = BounceInterpolator()
+        val objectAnimator1 = ObjectAnimator.ofFloat(line1, TRANSLATION_Y, -850f, 0f)
+        objectAnimator1.setInterpolator (bounceInterpolator)
+        objectAnimator1.setDuration(800).start()
+
+        val objectAnimator2 = ObjectAnimator.ofFloat(line2, TRANSLATION_Y, -500f, 0f)
+        objectAnimator2.setInterpolator (bounceInterpolator)
+        objectAnimator2.setDuration(800).start()
+
+        val objectAnimator3 = ObjectAnimator.ofFloat(line3, TRANSLATION_Y, 500f, 0f)
+        objectAnimator3.setInterpolator (bounceInterpolator)
+        objectAnimator3.setDuration(800).start()
+
+        val objectAnimator4 = ObjectAnimator.ofFloat(line4, TRANSLATION_Y, 850f, 0f)
+        objectAnimator4.setInterpolator (bounceInterpolator)
+        objectAnimator4.setDuration(800).start()
+    }
+
+    private fun findViewById(){
+        imageView11 = findViewById(R.id.imageView11)
+        imageView12 = findViewById(R.id.imageView12)
+        imageView13 = findViewById(R.id.imageView13)
+        imageView14 = findViewById(R.id.imageView14)
+        imageView21 = findViewById(R.id.imageView21)
+        imageView22 = findViewById(R.id.imageView22)
+        imageView23 = findViewById(R.id.imageView23)
+        imageView24 = findViewById(R.id.imageView24)
+        imageView31 = findViewById(R.id.imageView31)
+        imageView32 = findViewById(R.id.imageView32)
+        imageView33 = findViewById(R.id.imageView33)
+        imageView34 = findViewById(R.id.imageView34)
+        imageView41 = findViewById(R.id.imageView41)
+        imageView42 = findViewById(R.id.imageView42)
+        imageView43 = findViewById(R.id.imageView43)
+        imageView44 = findViewById(R.id.imageView44)
+
+        background = findViewById(R.id.background)
+        when(backgroundStyle){
+            1 -> background.setImageResource(background1)
+            2 -> background.setImageResource(background2)
+            3 -> background.setImageResource(background3)
+            4 -> background.setImageResource(background4)
+        }
+
+        firstPointsTextView = findViewById(R.id.points)
+        secondPointsTextView = findViewById(R.id.topPoints)
+
+        line1 = findViewById(R.id.line_1)
+        line2 = findViewById(R.id.line_2)
+        line3 = findViewById(R.id.line_3)
+        line4 = findViewById(R.id.line_4)
     }
 
     private fun setOnClickListener() {
@@ -193,6 +245,7 @@ class MainActivity : AppCompatActivity() {
             doStuff(imageView44, theCard)
 
         }
+
     }
 
     private fun doStuff(imageView: ImageView, card: Int) {
@@ -250,6 +303,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun calculate() {
         if (firstCard == secondCard) {
+
             checkEndGame++
             when (clickedFirst) {
                 0 -> imageView11.visibility = View.INVISIBLE
@@ -350,15 +404,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkEndGame() {
-        if (checkEndGame == 1) {
+        if (checkEndGame == 3) {
             AlertDialog.Builder(this)
+                .setCancelable(false)
                 .setTitle(R.string.game_over)
                 .setPositiveButton(
                     R.string.new_game,
                     DialogInterface.OnClickListener { dialog, which ->
                         val intent = Intent(this@MainActivity, MainActivity::class.java)
+                        if(backgroundStyle == 4){
+                            backgroundStyle = 1
+                        }else backgroundStyle++
                         startActivity(intent)
                         finish()
+
                     })
                 .setNegativeButton(R.string.exit, DialogInterface.OnClickListener { dialog, which ->
                     finish()
