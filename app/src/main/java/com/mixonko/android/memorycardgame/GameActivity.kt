@@ -13,12 +13,21 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import android.os.Vibrator
 import android.animation.ObjectAnimator
+import android.content.SharedPreferences
+import android.media.MediaPlayer
+import android.preference.PreferenceManager
 import android.view.View.TRANSLATION_Y
 import android.widget.LinearLayout
 import android.view.animation.*
-import android.widget.ImageSwitcher
+import android.widget.Toast
+import java.lang.Exception
 
 var backgroundStyle = 1
+
+var APP_PREFERENCES = "com.mixonko.android.memorycardgame.APP_PREFERENCES"
+var FIRST_PLAYER = "com.mixonko.android.memorycardgame.FIRST_PLAYER"
+var SECOND_PLAYER = "com.mixonko.android.memorycardgame.SECOND_PLAYER"
+var TURN = "com.mixonko.android.memorycardgame.TURN"
 
 class MainActivity : AppCompatActivity() {
 
@@ -90,17 +99,25 @@ class MainActivity : AppCompatActivity() {
     val cardsArray =
         mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
 
+    lateinit var sp: SharedPreferences
+    lateinit var settings: SharedPreferences
+
+    lateinit var mediaPlayer: MediaPlayer
+    lateinit var soundPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_game)
+
+        settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
+
+        sp = PreferenceManager.getDefaultSharedPreferences(this)
 
         findViewById()
 
         startAnimation()
 
-
-        firstPointsTextView.setTextColor(Color.BLACK)
+        firstPointsTextView.setTextColor(Color.GREEN)
         secondPointsTextView.setTextColor(Color.GRAY)
 
         imageView11.setTag(0)
@@ -249,8 +266,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doStuff(imageView: ImageView, card: Int) {
-        val vibe = this@MainActivity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibe.vibrate(40)
+        if (sp.getBoolean("vibration", true)) {
+            val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vibe.vibrate(40)
+        }
+
         when (cardsArray[card]) {
             11 -> imageView.setImageResource(image11)
             12 -> imageView.setImageResource(image12)
@@ -303,7 +323,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun calculate() {
         if (firstCard == secondCard) {
-
+            if (sp.getBoolean("music", true)) {
+                var soundPlayer = MediaPlayer.create(this, R.raw.done)
+                soundPlayer.start()
+            }
             checkEndGame++
             when (clickedFirst) {
                 0 -> imageView11.visibility = View.INVISIBLE
@@ -353,6 +376,10 @@ class MainActivity : AppCompatActivity() {
                 secondPointsTextView.setText("$secondPlayerPoints")
             }
         } else {
+            if (sp.getBoolean("music", true)) {
+                var soundPlayer = MediaPlayer.create(this, R.raw.not)
+                soundPlayer.start()
+            }
             imageView11.setImageResource(cardBack)
             imageView12.setImageResource(cardBack)
             imageView13.setImageResource(cardBack)
@@ -373,10 +400,10 @@ class MainActivity : AppCompatActivity() {
             if (turn == 1) {
                 turn = 2
                 firstPointsTextView.setTextColor(Color.GRAY)
-                secondPointsTextView.setTextColor(Color.BLACK)
+                secondPointsTextView.setTextColor(Color.GREEN)
             } else if (turn == 2) {
                 turn = 1
-                firstPointsTextView.setTextColor(Color.BLACK)
+                firstPointsTextView.setTextColor(Color.GREEN)
                 secondPointsTextView.setTextColor(Color.GRAY)
             }
         }
@@ -405,13 +432,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkEndGame() {
         if (checkEndGame == 3) {
+            val message = if (firstPlayerPoints > secondPlayerPoints){
+                "First Player Win!"
+            }else if (firstPlayerPoints == secondPlayerPoints){
+                "It's a draw!"
+            }else{
+                "Second Player Win!"
+            }
             AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.game_over)
+                .setMessage(message)
                 .setPositiveButton(
-                    R.string.new_game,
+                    R.string.continue_game,
                     DialogInterface.OnClickListener { dialog, which ->
                         val intent = Intent(this@MainActivity, MainActivity::class.java)
+                        intent.putExtra(LOAD_GAME, 1)
+                        intent.putExtra(TURN, turn)
                         if(backgroundStyle == 4){
                             backgroundStyle = 1
                         }else backgroundStyle++
@@ -423,6 +460,53 @@ class MainActivity : AppCompatActivity() {
                     finish()
                 }).show()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (sp.getBoolean("music", true)) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.music2)
+            mediaPlayer.isLooping = true
+            mediaPlayer.start()
+        } else try {
+            mediaPlayer.stop()
+        }catch (e: Exception){}
+
+        val intent = getIntent()
+        turn = intent.getIntExtra(TURN, 1)
+        if (turn == 2){
+            firstPointsTextView.setTextColor(Color.GRAY)
+            secondPointsTextView.setTextColor(Color.GREEN)
+        }
+        val load = intent.getIntExtra(LOAD_GAME, 0)
+        if (load != 0){
+            try {
+                firstPointsTextView.setText(settings.getString(FIRST_PLAYER, "0" ))
+                secondPointsTextView.setText(settings.getString(SECOND_PLAYER, "0" ))
+                firstPlayerPoints = firstPointsTextView.text.toString().toInt()
+                secondPlayerPoints = secondPointsTextView.text.toString().toInt()
+            }catch (e:Exception){
+                Toast.makeText(this, "LOADING ERROR", Toast.LENGTH_LONG).show()
+            }
+        }else {
+            firstPointsTextView.setText("0")
+            secondPointsTextView.setText("0")
+        }
+
+
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        var editor = settings.edit()
+        editor.putString(FIRST_PLAYER, firstPointsTextView.text.toString())
+        editor.putString(SECOND_PLAYER, secondPointsTextView.text.toString())
+        editor.apply()
+        try {
+            mediaPlayer.stop()
+            soundPlayer.stop()
+        }catch (e: Exception){}
     }
 
 }

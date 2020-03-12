@@ -31,6 +31,11 @@
             style="@style/Buttons"
             android:text="@string/settings" />
 
+        <Button
+            android:id="@+id/exit"
+            style="@style/Buttons"
+            android:text="@string/exit" />
+
     </LinearLayout>
 
 
