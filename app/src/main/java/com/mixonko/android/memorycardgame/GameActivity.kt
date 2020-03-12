@@ -78,6 +78,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var secondPointsTextView: TextView
     private lateinit var firstGlobalPointsTextView: TextView
     private lateinit var secondGlobalPointsTextView: TextView
+    private lateinit var firstPlayerTextView: TextView
+    private lateinit var secondPlayerTextView: TextView
 
     private var firstCard: Int? = 0
     private var secondCard: Int? = 0
@@ -122,7 +124,9 @@ class MainActivity : AppCompatActivity() {
 
         startLayoutAnimation()
 
+        firstPlayerTextView.setTextColor(Color.GREEN)
         firstPointsTextView.setTextColor(Color.GREEN)
+        secondPlayerTextView.setTextColor(Color.GRAY)
         secondPointsTextView.setTextColor(Color.GRAY)
 
         imageView11.setTag(0)
@@ -193,10 +197,12 @@ class MainActivity : AppCompatActivity() {
             4 -> background.setImageResource(background4)
         }
 
-        firstPointsTextView = findViewById(R.id.points)
-        secondPointsTextView = findViewById(R.id.topPoints)
+        firstPointsTextView = findViewById(R.id.firstPoints)
+        secondPointsTextView = findViewById(R.id.secondPoints)
         firstGlobalPointsTextView = findViewById(R.id.first_global_points_tv)
         secondGlobalPointsTextView = findViewById(R.id.second_global_points_tv)
+        firstPlayerTextView = findViewById(R.id.first_player_tw)
+        secondPlayerTextView = findViewById(R.id.second_player_tw)
 
         line1 = findViewById(R.id.line_1)
         line2 = findViewById(R.id.line_2)
@@ -472,11 +478,15 @@ class MainActivity : AppCompatActivity() {
 
             if (turn == 1) {
                 turn = 2
+                firstPlayerTextView.setTextColor(Color.GRAY)
                 firstPointsTextView.setTextColor(Color.GRAY)
+                secondPlayerTextView.setTextColor(Color.GREEN)
                 secondPointsTextView.setTextColor(Color.GREEN)
             } else if (turn == 2) {
                 turn = 1
+                firstPlayerTextView.setTextColor(Color.GREEN)
                 firstPointsTextView.setTextColor(Color.GREEN)
+                secondPlayerTextView.setTextColor(Color.GRAY)
                 secondPointsTextView.setTextColor(Color.GRAY)
             }
         }
@@ -661,7 +671,9 @@ class MainActivity : AppCompatActivity() {
         secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
         turn = settings.getInt(TURN, 1)
         if (turn == 2) {
+            firstPlayerTextView.setTextColor(Color.GRAY)
             firstPointsTextView.setTextColor(Color.GRAY)
+            secondPlayerTextView.setTextColor(Color.GREEN)
             secondPointsTextView.setTextColor(Color.GREEN)
         }
     }
@@ -699,7 +711,9 @@ class MainActivity : AppCompatActivity() {
 
             turn = settings.getInt(TURN, 1)
             if (turn == 2) {
+                firstPlayerTextView.setTextColor(Color.GRAY)
                 firstPointsTextView.setTextColor(Color.GRAY)
+                secondPlayerTextView.setTextColor(Color.GREEN)
                 secondPointsTextView.setTextColor(Color.GREEN)
             }
         } catch (e: Exception) {
@@ -735,6 +749,6 @@ class MainActivity : AppCompatActivity() {
         editor.putInt(IMAGE_VIEW_44_IS_VISIBLE, imageView44.visibility)
         editor.apply()
     }
- 
+
 }
 
