@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <ImageView
@@ -9,6 +10,8 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/background2"/>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,6 +40,7 @@
             android:text="@string/exit" />
 
     </LinearLayout>
+
 
 
 </FrameLayout>

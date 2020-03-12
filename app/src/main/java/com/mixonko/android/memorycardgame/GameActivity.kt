@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import android.os.Vibrator
 import android.animation.ObjectAnimator
@@ -17,102 +15,103 @@ import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.preference.PreferenceManager
 import android.view.View.TRANSLATION_Y
-import android.widget.LinearLayout
 import android.view.animation.*
-import android.widget.Toast
+import android.widget.*
 import java.lang.Exception
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.*
 
 var backgroundStyle = 1
 
 class MainActivity : AppCompatActivity() {
 
-    val cardBack = R.drawable.card_back
+    private val cardBack = R.drawable.card_back
 
-    val image11 = R.drawable.ic_image11
-    val image12 = R.drawable.ic_image12
-    val image13 = R.drawable.ic_image13
-    val image14 = R.drawable.ic_image14
-    val image15 = R.drawable.ic_image15
-    val image16 = R.drawable.ic_image16
-    val image17 = R.drawable.ic_image17
-    val image18 = R.drawable.ic_image18
-    val image21 = R.drawable.ic_image21
-    val image22 = R.drawable.ic_image22
-    val image23 = R.drawable.ic_image23
-    val image24 = R.drawable.ic_image24
-    val image25 = R.drawable.ic_image25
-    val image26 = R.drawable.ic_image26
-    val image27 = R.drawable.ic_image27
-    val image28 = R.drawable.ic_image28
+    private val image11 = R.drawable.ic_image11
+    private val image12 = R.drawable.ic_image12
+    private val image13 = R.drawable.ic_image13
+    private val image14 = R.drawable.ic_image14
+    private val image15 = R.drawable.ic_image15
+    private val image16 = R.drawable.ic_image16
+    private val image17 = R.drawable.ic_image17
+    private val image18 = R.drawable.ic_image18
+    private val image21 = R.drawable.ic_image21
+    private val image22 = R.drawable.ic_image22
+    private val image23 = R.drawable.ic_image23
+    private val image24 = R.drawable.ic_image24
+    private val image25 = R.drawable.ic_image25
+    private val image26 = R.drawable.ic_image26
+    private val image27 = R.drawable.ic_image27
+    private val image28 = R.drawable.ic_image28
 
-    val background1 = R.drawable.background1
-    val background2 = R.drawable.background2
-    val background3 = R.drawable.background3
-    val background4 = R.drawable.background4
+    private val background1 = R.drawable.background1
+    private val background2 = R.drawable.background2
+    private val background3 = R.drawable.background3
+    private val background4 = R.drawable.background4
 
-    lateinit var imageView11: ImageView
-    lateinit var imageView12: ImageView
-    lateinit var imageView13: ImageView
-    lateinit var imageView14: ImageView
-    lateinit var imageView21: ImageView
-    lateinit var imageView22: ImageView
-    lateinit var imageView23: ImageView
-    lateinit var imageView24: ImageView
-    lateinit var imageView31: ImageView
-    lateinit var imageView32: ImageView
-    lateinit var imageView33: ImageView
-    lateinit var imageView34: ImageView
-    lateinit var imageView41: ImageView
-    lateinit var imageView42: ImageView
-    lateinit var imageView43: ImageView
-    lateinit var imageView44: ImageView
+    private lateinit var imageView11: ImageView
+    private lateinit var imageView12: ImageView
+    private lateinit var imageView13: ImageView
+    private lateinit var imageView14: ImageView
+    private lateinit var imageView21: ImageView
+    private lateinit var imageView22: ImageView
+    private lateinit var imageView23: ImageView
+    private lateinit var imageView24: ImageView
+    private lateinit var imageView31: ImageView
+    private lateinit var imageView32: ImageView
+    private lateinit var imageView33: ImageView
+    private lateinit var imageView34: ImageView
+    private lateinit var imageView41: ImageView
+    private lateinit var imageView42: ImageView
+    private lateinit var imageView43: ImageView
+    private lateinit var imageView44: ImageView
 
-    lateinit var background: ImageView
+    private lateinit var background: ImageView
 
-    lateinit var line1: LinearLayout
-    lateinit var line2: LinearLayout
-    lateinit var line3: LinearLayout
-    lateinit var line4: LinearLayout
+    private lateinit var line1: LinearLayout
+    private lateinit var line2: LinearLayout
+    private lateinit var line3: LinearLayout
+    private lateinit var line4: LinearLayout
 
-    lateinit var firstPointsTextView: TextView
-    lateinit var secondPointsTextView: TextView
-    lateinit var firstGlobalPointsTextView: TextView
-    lateinit var secondGlobalPointsTextView: TextView
+    private lateinit var firstPointsTextView: TextView
+    private lateinit var secondPointsTextView: TextView
+    private lateinit var firstGlobalPointsTextView: TextView
+    private lateinit var secondGlobalPointsTextView: TextView
 
-    var firstCard: Int? = 0
-    var secondCard: Int? = 0
+    private var firstCard: Int? = 0
+    private var secondCard: Int? = 0
 
-    var clickedFirst: Int? = 0
-    var clickedSecond: Int? = 0
+    private var clickedFirst: Int? = 0
+    private var clickedSecond: Int? = 0
 
-    var cardNumber: Int = 1
+    private var cardNumber: Int = 1
 
-    var turn: Int = 1
-    var firstPlayerPoints: Int = 0
-    var secondPlayerPoints: Int = 0
-    var firstPlayerGlobalPoints: Int = 0
-    var secondPlayerGlobalPoints: Int = 0
+    private var turn: Int = 1
+    private var firstPlayerPoints: Int = 0
+    private var secondPlayerPoints: Int = 0
+    private var firstPlayerGlobalPoints: Int = 0
+    private var secondPlayerGlobalPoints: Int = 0
 
+    private var cardsArray =
+          mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
 
-    var cardsArray =
-        mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
+    private lateinit var sp: SharedPreferences
+    private lateinit var settings: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
 
-    lateinit var sp: SharedPreferences
-    lateinit var settings: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var soundPlayerDone: MediaPlayer
+    private lateinit var soundPlayerNot: MediaPlayer
 
-    lateinit var mediaPlayer: MediaPlayer
-    lateinit var soundPlayerDone: MediaPlayer
-    lateinit var soundPlayerNot: MediaPlayer
+    private lateinit var gson: Gson
 
-    lateinit var gson: Gson
+    private lateinit var firstImage: ImageView
+    private lateinit var secondImage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-
         settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
@@ -121,7 +120,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById()
 
-        startAnimation()
+        startLayoutAnimation()
 
         firstPointsTextView.setTextColor(Color.GREEN)
         secondPointsTextView.setTextColor(Color.GRAY)
@@ -143,12 +142,13 @@ class MainActivity : AppCompatActivity() {
         imageView43.setTag(14)
         imageView44.setTag(15)
 
-//        Collections.shuffle(cardsArray)
+        Collections.shuffle(cardsArray)
 
         setOnClickListener()
+
     }
 
-    private fun startAnimation() {
+    private fun startLayoutAnimation() {
         val bounceInterpolator = BounceInterpolator()
         val objectAnimator1 = ObjectAnimator.ofFloat(line1, TRANSLATION_Y, -850f, 0f)
         objectAnimator1.setInterpolator(bounceInterpolator)
@@ -273,30 +273,105 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun showCardImage(imageView: ImageView, image: Int) {
+        imageView.animate().withLayer()
+            .rotationY(90f)
+            .setDuration(150)
+            .withEndAction(
+                Runnable() {
+                    imageView.setImageResource(image)
+
+                    imageView.setRotationY(-90f)
+                    imageView.animate().withLayer()
+                        .rotationY(0f)
+                        .setDuration(150)
+                        .start()
+                }
+            ).start()
+    }
+
+    private fun showBackCardImage(vararg imageView: ImageView) {
+        imageView.forEach {
+            it.animate().withLayer()
+                .rotationY(90f)
+                .setDuration(150)
+                .withEndAction(
+                    Runnable() {
+                        it.setImageResource(cardBack)
+
+                        it.setRotationY(-90f)
+                        it.animate().withLayer()
+                            .rotationY(0f)
+                            .setDuration(150)
+                            .start()
+                    }
+                ).start()
+        }
+
+    }
+
+    private fun startDoneAnimation(vararg imageView: ImageView){
+        imageView.forEach {
+            it.animate().withLayer()
+                .scaleX(0.1f)
+                .scaleXBy(0.3f)
+                .scaleY(0.1f)
+                .scaleYBy(0.3f)
+                .setDuration(600)
+                .withEndAction(
+                    Runnable() {
+                        it.animate().withLayer()
+                            .scaleX (0.001f)
+                            .scaleY(0.001f)
+                            .setDuration(400)
+                            .start()
+                    }
+                ).start()
+        }
+    }
+
+    private fun startNotAnimation(vararg imageView: ImageView){
+        imageView.forEach {
+            it.animate().withLayer()
+                .rotationY(40f)
+                .setDuration(150)
+                .withEndAction(
+                    Runnable() {
+                        it.setRotationY(-40f)
+                        it.animate().withLayer()
+                            .rotationY(0f)
+                            .setDuration(150)
+                            .start()
+                    }
+                ).start()
+        }
+    }
+
     private fun doStuff(imageView: ImageView, card: Int) {
-        vibrate()
+        startVibration()
 
         when (cardsArray[card]) {
-            11 -> imageView.setImageResource(image11)
-            12 -> imageView.setImageResource(image12)
-            13 -> imageView.setImageResource(image13)
-            14 -> imageView.setImageResource(image14)
-            15 -> imageView.setImageResource(image15)
-            16 -> imageView.setImageResource(image16)
-            17 -> imageView.setImageResource(image17)
-            18 -> imageView.setImageResource(image18)
-            21 -> imageView.setImageResource(image21)
-            22 -> imageView.setImageResource(image22)
-            23 -> imageView.setImageResource(image23)
-            24 -> imageView.setImageResource(image24)
-            25 -> imageView.setImageResource(image25)
-            26 -> imageView.setImageResource(image26)
-            27 -> imageView.setImageResource(image27)
-            28 -> imageView.setImageResource(image28)
+            11 -> showCardImage(imageView, image11)
+            12 -> showCardImage(imageView, image12)
+            13 -> showCardImage(imageView, image13)
+            14 -> showCardImage(imageView, image14)
+            15 -> showCardImage(imageView, image15)
+            16 -> showCardImage(imageView, image16)
+            17 -> showCardImage(imageView, image17)
+            18 -> showCardImage(imageView, image18)
+            21 -> showCardImage(imageView, image21)
+            22 -> showCardImage(imageView, image22)
+            23 -> showCardImage(imageView, image23)
+            24 -> showCardImage(imageView, image24)
+            25 -> showCardImage(imageView, image25)
+            26 -> showCardImage(imageView, image26)
+            27 -> showCardImage(imageView, image27)
+            28 -> showCardImage(imageView, image28)
 
         }
 
         if (cardNumber == 1) {
+            firstImage = imageView
             firstCard = cardsArray[card]
             if (firstCard!! > 20) {
                 firstCard = firstCard!! - 10
@@ -308,6 +383,7 @@ class MainActivity : AppCompatActivity() {
             imageView.isEnabled = false
 
         } else if (cardNumber == 2) {
+            secondImage = imageView
             secondCard = cardsArray[card]
             if (secondCard!! > 20) {
                 secondCard = secondCard!! - 10
@@ -318,15 +394,27 @@ class MainActivity : AppCompatActivity() {
             imageViewIsEnabled(false)
 
             if (firstCard == secondCard) {
-                startDoneSound()
+                startSoundDone()
+                val handler = Handler()
+                handler.postDelayed(Runnable {
+                    startDoneAnimation(firstImage, secondImage)
+                }, 300)
+
+
             } else {
-                startNotSound()
+                startSoundNot()
+                val handler = Handler()
+                handler.postDelayed(Runnable {
+                    startNotAnimation(firstImage, secondImage)
+
+                }, 300)
+
             }
 
             val handler = Handler()
             handler.postDelayed(Runnable {
                 calculate()
-            }, 500)
+            }, 1300)
 
         }
 
@@ -380,7 +468,7 @@ class MainActivity : AppCompatActivity() {
                 secondPointsTextView.setText("$secondPlayerPoints")
             }
         } else {
-            showCardBack()
+            showBackCardImage(firstImage, secondImage)
 
             if (turn == 1) {
                 turn = 2
@@ -397,21 +485,21 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun vibrate() {
+    private fun startVibration() {
         if (vibrationCheck()) {
             val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             vibe.vibrate(40)
         }
     }
 
-    private fun startDoneSound() {
+    private fun startSoundDone() {
         if (musicCheck()) {
             soundPlayerDone = MediaPlayer.create(this, R.raw.done)
             soundPlayerDone.start()
         }
     }
 
-    private fun startNotSound() {
+    private fun startSoundNot() {
         if (musicCheck()) {
             soundPlayerNot = MediaPlayer.create(this, R.raw.not)
             soundPlayerNot.start()
@@ -419,26 +507,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun musicCheck(): Boolean = sp.getBoolean("music", true)
-    private fun vibrationCheck(): Boolean = sp.getBoolean("vibration", true)
 
-    private fun showCardBack() {
-        imageView11.setImageResource(cardBack)
-        imageView12.setImageResource(cardBack)
-        imageView13.setImageResource(cardBack)
-        imageView14.setImageResource(cardBack)
-        imageView21.setImageResource(cardBack)
-        imageView22.setImageResource(cardBack)
-        imageView23.setImageResource(cardBack)
-        imageView24.setImageResource(cardBack)
-        imageView31.setImageResource(cardBack)
-        imageView32.setImageResource(cardBack)
-        imageView33.setImageResource(cardBack)
-        imageView34.setImageResource(cardBack)
-        imageView41.setImageResource(cardBack)
-        imageView42.setImageResource(cardBack)
-        imageView43.setImageResource(cardBack)
-        imageView44.setImageResource(cardBack)
-    }
+    private fun vibrationCheck(): Boolean = sp.getBoolean("vibration", true)
 
     private fun imageViewIsEnabled(b: Boolean) {
         imageView11.isEnabled = b
@@ -473,21 +543,13 @@ class MainActivity : AppCompatActivity() {
             var message: String = ""
             if (firstPlayerPoints == secondPlayerPoints) {
                 message = "It's a draw!"
-                firstPlayerGlobalPoints++
-                secondPlayerGlobalPoints++
-                firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
-                secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
             }
             if (firstPlayerPoints > secondPlayerPoints) {
                 message = "First Player Win!"
-                firstPlayerGlobalPoints++
-                firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
             }
 
             if (firstPlayerPoints < secondPlayerPoints) {
                 message = "Second Player Win!"
-                secondPlayerGlobalPoints++
-                secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
             }
 
             AlertDialog.Builder(this)
@@ -502,6 +564,23 @@ class MainActivity : AppCompatActivity() {
                         if (backgroundStyle == 4) {
                             backgroundStyle = 1
                         } else backgroundStyle++
+
+                        if (firstPlayerPoints == secondPlayerPoints) {
+                            firstPlayerGlobalPoints++
+                            secondPlayerGlobalPoints++
+                            firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+                            secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+                        }
+                        if (firstPlayerPoints > secondPlayerPoints) {
+                            firstPlayerGlobalPoints++
+                            firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+                        }
+
+                        if (firstPlayerPoints < secondPlayerPoints) {
+                            secondPlayerGlobalPoints++
+                            secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+                        }
+
                         startActivity(intent)
                         finish()
                     })
@@ -516,7 +595,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-
         if (musicCheck()) {
             mediaPlayer = MediaPlayer.create(this, R.raw.music2)
             mediaPlayer.isLooping = true
@@ -530,16 +608,11 @@ class MainActivity : AppCompatActivity() {
         val isLoadGame = intent.getIntExtra(LOAD_GAME, 0)
         if (isLoadGame == 1) {
             loadGame()
+            checkEndGame()
         }
         if (isLoadGame == 2) {
             contimueGame()
         }
-//        if (isLoadGame == 0) {
-//            firstPlayerPoints = 0
-//            secondPlayerPoints = 0
-//            firstPointsTextView.setText("$firstPlayerPoints")
-//            secondPointsTextView.setText("$secondPlayerPoints")
-//        }
 
     }
 
@@ -577,7 +650,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun contimueGame() {
-        setVisible() 
+        setVisible()
         firstPlayerPoints = 0
         secondPlayerPoints = 0
         firstPointsTextView.setText("$firstPlayerPoints")
@@ -662,7 +735,6 @@ class MainActivity : AppCompatActivity() {
         editor.putInt(IMAGE_VIEW_44_IS_VISIBLE, imageView44.visibility)
         editor.apply()
     }
-
-
+ 
 }
 
