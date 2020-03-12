@@ -20,7 +20,14 @@ import android.view.View.TRANSLATION_Y
 import android.widget.LinearLayout
 import android.view.animation.*
 import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_game.*
 import java.lang.Exception
+import java.util.ArrayList
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 var backgroundStyle = 1
 
@@ -52,8 +59,8 @@ class MainActivity : AppCompatActivity() {
 
     val background1 = R.drawable.background1
     val background2 = R.drawable.background2
-    val background3= R.drawable.background3
-    val background4= R.drawable.background4
+    val background3 = R.drawable.background3
+    val background4 = R.drawable.background4
 
     lateinit var imageView11: ImageView
     lateinit var imageView12: ImageView
@@ -81,6 +88,8 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var firstPointsTextView: TextView
     lateinit var secondPointsTextView: TextView
+    lateinit var firstGlobalPointsTextView: TextView
+    lateinit var secondGlobalPointsTextView: TextView
 
     var firstCard: Int? = 0
     var secondCard: Int? = 0
@@ -93,6 +102,8 @@ class MainActivity : AppCompatActivity() {
     var turn: Int = 1
     var firstPlayerPoints: Int = 0
     var secondPlayerPoints: Int = 0
+    var firstPlayerGlobalPoints: Int = 0
+    var secondPlayerGlobalPoints: Int = 0
 
     var checkEndGame = 0
 
@@ -101,6 +112,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var sp: SharedPreferences
     lateinit var settings: SharedPreferences
+    lateinit var editor: SharedPreferences.Editor
 
     lateinit var mediaPlayer: MediaPlayer
     lateinit var soundPlayer: MediaPlayer
@@ -143,25 +155,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startAnimation() {
-        val bounceInterpolator  = BounceInterpolator()
+        val bounceInterpolator = BounceInterpolator()
         val objectAnimator1 = ObjectAnimator.ofFloat(line1, TRANSLATION_Y, -850f, 0f)
-        objectAnimator1.setInterpolator (bounceInterpolator)
+        objectAnimator1.setInterpolator(bounceInterpolator)
         objectAnimator1.setDuration(800).start()
 
         val objectAnimator2 = ObjectAnimator.ofFloat(line2, TRANSLATION_Y, -500f, 0f)
-        objectAnimator2.setInterpolator (bounceInterpolator)
+        objectAnimator2.setInterpolator(bounceInterpolator)
         objectAnimator2.setDuration(800).start()
 
         val objectAnimator3 = ObjectAnimator.ofFloat(line3, TRANSLATION_Y, 500f, 0f)
-        objectAnimator3.setInterpolator (bounceInterpolator)
+        objectAnimator3.setInterpolator(bounceInterpolator)
         objectAnimator3.setDuration(800).start()
 
         val objectAnimator4 = ObjectAnimator.ofFloat(line4, TRANSLATION_Y, 850f, 0f)
-        objectAnimator4.setInterpolator (bounceInterpolator)
+        objectAnimator4.setInterpolator(bounceInterpolator)
         objectAnimator4.setDuration(800).start()
     }
 
-    private fun findViewById(){
+    private fun findViewById() {
         imageView11 = findViewById(R.id.imageView11)
         imageView12 = findViewById(R.id.imageView12)
         imageView13 = findViewById(R.id.imageView13)
@@ -180,7 +192,7 @@ class MainActivity : AppCompatActivity() {
         imageView44 = findViewById(R.id.imageView44)
 
         background = findViewById(R.id.background)
-        when(backgroundStyle){
+        when (backgroundStyle) {
             1 -> background.setImageResource(background1)
             2 -> background.setImageResource(background2)
             3 -> background.setImageResource(background3)
@@ -189,6 +201,8 @@ class MainActivity : AppCompatActivity() {
 
         firstPointsTextView = findViewById(R.id.points)
         secondPointsTextView = findViewById(R.id.topPoints)
+        firstGlobalPointsTextView = findViewById(R.id.first_global_points_tv)
+        secondGlobalPointsTextView = findViewById(R.id.second_global_points_tv)
 
         line1 = findViewById(R.id.line_1)
         line2 = findViewById(R.id.line_2)
@@ -366,7 +380,7 @@ class MainActivity : AppCompatActivity() {
                 15 -> imageView44.visibility = View.INVISIBLE
             }
 
-            checkEndGame()
+
 
             if (turn == 1) {
                 firstPlayerPoints++
@@ -408,6 +422,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         imageViewIsEnabled(true)
+        checkEndGame()
 
     }
 
@@ -431,14 +446,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkEndGame() {
-        if (checkEndGame == 3) {
-            val message = if (firstPlayerPoints > secondPlayerPoints){
-                "First Player Win!"
-            }else if (firstPlayerPoints == secondPlayerPoints){
-                "It's a draw!"
-            }else{
-                "Second Player Win!"
+        if (checkEndGame == 4) {
+            var message: String = ""
+            if (firstPlayerPoints == secondPlayerPoints) {
+                message = "It's a draw!"
+                firstPlayerGlobalPoints++
+                secondPlayerGlobalPoints++
+                firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+                secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
             }
+            if (firstPlayerPoints > secondPlayerPoints) {
+                message = "First Player Win!"
+                firstPlayerGlobalPoints++
+                firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+            }
+
+            if (firstPlayerPoints < secondPlayerPoints) {
+                message = "Second Player Win!"
+                secondPlayerGlobalPoints++
+                secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+            }
+
             AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(R.string.game_over)
@@ -448,10 +476,9 @@ class MainActivity : AppCompatActivity() {
                     DialogInterface.OnClickListener { dialog, which ->
                         val intent = Intent(this@MainActivity, MainActivity::class.java)
                         intent.putExtra(LOAD_GAME, 1)
-                        intent.putExtra(TURN, turn)
-                        if(backgroundStyle == 4){
+                        if (backgroundStyle == 4) {
                             backgroundStyle = 1
-                        }else backgroundStyle++
+                        } else backgroundStyle++
                         startActivity(intent)
                         finish()
 
@@ -470,25 +497,26 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer.start()
         } else try {
             mediaPlayer.stop()
-        }catch (e: Exception){}
+        } catch (e: Exception) {
+        }
 
         val intent = getIntent()
-        turn = intent.getIntExtra(TURN, 1)
-        if (turn == 2){
-            firstPointsTextView.setTextColor(Color.GRAY)
-            secondPointsTextView.setTextColor(Color.GREEN)
-        }
         val load = intent.getIntExtra(LOAD_GAME, 0)
-        if (load != 0){
+        if (load != 0) {
             try {
-                firstPointsTextView.setText(settings.getString(FIRST_PLAYER, "0" ))
-                secondPointsTextView.setText(settings.getString(SECOND_PLAYER, "0" ))
-                firstPlayerPoints = firstPointsTextView.text.toString().toInt()
-                secondPlayerPoints = secondPointsTextView.text.toString().toInt()
-            }catch (e:Exception){
+                firstGlobalPointsTextView.setText(settings.getInt(FIRST_PLAYER, 0).toString())
+                secondGlobalPointsTextView.setText(settings.getInt(SECOND_PLAYER, 0).toString())
+                firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER, 0)
+                secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER, 0)
+                turn = settings.getInt(TURN, 1)
+                if (turn == 2) {
+                    firstPointsTextView.setTextColor(Color.GRAY)
+                    secondPointsTextView.setTextColor(Color.GREEN)
+                }
+            } catch (e: Exception) {
                 Toast.makeText(this, "LOADING ERROR", Toast.LENGTH_LONG).show()
             }
-        }else {
+        } else {
             firstPointsTextView.setText("0")
             secondPointsTextView.setText("0")
         }
@@ -499,14 +527,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        var editor = settings.edit()
-        editor.putString(FIRST_PLAYER, firstPointsTextView.text.toString())
-        editor.putString(SECOND_PLAYER, secondPointsTextView.text.toString())
+        editor = settings.edit()
+        editor.putInt(FIRST_PLAYER, firstPlayerGlobalPoints)
+        editor.putInt(SECOND_PLAYER, secondPlayerGlobalPoints)
+        editor.putInt(TURN, turn)
+                
         editor.apply()
         try {
             mediaPlayer.stop()
             soundPlayer.stop()
-        }catch (e: Exception){}
+        } catch (e: Exception) {
+        }
     }
 
 }

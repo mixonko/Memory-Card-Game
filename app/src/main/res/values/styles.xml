@@ -33,6 +33,10 @@
         <item name="android:layout_margin">15sp</item>
     </style>
 
+    <style name="GlobalPointsTextView" parent="PointsTextView" >
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/my_splash_screen</item>
     </style>

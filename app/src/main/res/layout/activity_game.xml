@@ -35,6 +35,46 @@
             android:layout_height="500dp"
             android:elevation="@android:dimen/notification_large_icon_width" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/first_global_points_tv"
+                    style="@style/GlobalPointsTextView"
+                    android:layout_gravity="right"
+                    android:text="0" />
+
+            </FrameLayout>
+
+            <TextView
+                style="@style/GlobalPointsTextView"
+                android:textColor="@color/colorBlack"
+                android:text=":" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/second_global_points_tv"
+                    style="@style/GlobalPointsTextView"
+                    android:text="0" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+
+
+
     </LinearLayout>
 
 
