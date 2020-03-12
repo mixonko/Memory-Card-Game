@@ -23,7 +23,6 @@ import android.widget.Toast
 import java.lang.Exception
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.util.*
 
 var backgroundStyle = 1
 
@@ -96,7 +95,6 @@ class MainActivity : AppCompatActivity() {
     var firstPlayerGlobalPoints: Int = 0
     var secondPlayerGlobalPoints: Int = 0
 
-    var checkEndGame = 0
 
     var cardsArray =
         mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
@@ -106,7 +104,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var editor: SharedPreferences.Editor
 
     lateinit var mediaPlayer: MediaPlayer
-    lateinit var soundPlayer: MediaPlayer
+    lateinit var soundPlayerDone: MediaPlayer
+    lateinit var soundPlayerNot: MediaPlayer
 
     lateinit var gson: Gson
 
@@ -144,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         imageView43.setTag(14)
         imageView44.setTag(15)
 
-        Collections.shuffle(cardsArray)
+//        Collections.shuffle(cardsArray)
 
         setOnClickListener()
     }
@@ -275,10 +274,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doStuff(imageView: ImageView, card: Int) {
-        if (sp.getBoolean("vibration", true)) {
-            val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            vibe.vibrate(40)
-        }
+        vibrate()
 
         when (cardsArray[card]) {
             11 -> imageView.setImageResource(image11)
@@ -321,6 +317,12 @@ class MainActivity : AppCompatActivity() {
 
             imageViewIsEnabled(false)
 
+            if (firstCard == secondCard) {
+                startDoneSound()
+            } else {
+                startNotSound()
+            }
+
             val handler = Handler()
             handler.postDelayed(Runnable {
                 calculate()
@@ -332,11 +334,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun calculate() {
         if (firstCard == secondCard) {
-            if (sp.getBoolean("music", true)) {
-                var soundPlayer = MediaPlayer.create(this, R.raw.done)
-                soundPlayer.start()
-            }
-            checkEndGame++
             when (clickedFirst) {
                 0 -> imageView11.visibility = View.INVISIBLE
                 1 -> imageView12.visibility = View.INVISIBLE
@@ -383,11 +380,6 @@ class MainActivity : AppCompatActivity() {
                 secondPointsTextView.setText("$secondPlayerPoints")
             }
         } else {
-            if (sp.getBoolean("music", true)) {
-                var soundPlayer = MediaPlayer.create(this, R.raw.not)
-                soundPlayer.start()
-            }
-
             showCardBack()
 
             if (turn == 1) {
@@ -404,6 +396,30 @@ class MainActivity : AppCompatActivity() {
         checkEndGame()
 
     }
+
+    private fun vibrate() {
+        if (vibrationCheck()) {
+            val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vibe.vibrate(40)
+        }
+    }
+
+    private fun startDoneSound() {
+        if (musicCheck()) {
+            soundPlayerDone = MediaPlayer.create(this, R.raw.done)
+            soundPlayerDone.start()
+        }
+    }
+
+    private fun startNotSound() {
+        if (musicCheck()) {
+            soundPlayerNot = MediaPlayer.create(this, R.raw.not)
+            soundPlayerNot.start()
+        }
+    }
+
+    private fun musicCheck(): Boolean = sp.getBoolean("music", true)
+    private fun vibrationCheck(): Boolean = sp.getBoolean("vibration", true)
 
     private fun showCardBack() {
         imageView11.setImageResource(cardBack)
@@ -487,7 +503,6 @@ class MainActivity : AppCompatActivity() {
                             backgroundStyle = 1
                         } else backgroundStyle++
                         startActivity(intent)
-                        setVisibility()
                         finish()
                     })
                 .setNegativeButton(R.string.exit, DialogInterface.OnClickListener { dialog, which ->
@@ -502,7 +517,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
 
-        if (sp.getBoolean("music", true)) {
+        if (musicCheck()) {
             mediaPlayer = MediaPlayer.create(this, R.raw.music2)
             mediaPlayer.isLooping = true
             mediaPlayer.start()
@@ -512,27 +527,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         val intent = getIntent()
-        val load = intent.getIntExtra(LOAD_GAME, 0)
-        if (load == 1) {
-            loadInfo()
+        val isLoadGame = intent.getIntExtra(LOAD_GAME, 0)
+        if (isLoadGame == 1) {
+            loadGame()
         }
-        if (load == 2) {
-            loadInfo()
-            firstPlayerPoints = 0
-            secondPlayerPoints = 0
-            firstPointsTextView.setText("$firstPlayerPoints")
-            secondPointsTextView.setText("$secondPlayerPoints")
+        if (isLoadGame == 2) {
+            contimueGame()
         }
-        if (load == 0) {
-            firstPlayerPoints = 0
-            secondPlayerPoints = 0
-            firstPointsTextView.setText("$firstPlayerPoints")
-            secondPointsTextView.setText("$secondPlayerPoints")
-        }
+//        if (isLoadGame == 0) {
+//            firstPlayerPoints = 0
+//            secondPlayerPoints = 0
+//            firstPointsTextView.setText("$firstPlayerPoints")
+//            secondPointsTextView.setText("$secondPlayerPoints")
+//        }
 
     }
 
-    private fun setVisibility() {
+    private fun setVisible() {
         imageView11.visibility = View.VISIBLE
         imageView12.visibility = View.VISIBLE
         imageView13.visibility = View.VISIBLE
@@ -559,12 +570,30 @@ class MainActivity : AppCompatActivity() {
 
         try {
             mediaPlayer.stop()
-            soundPlayer.stop()
+            soundPlayerNot.stop()
+            soundPlayerDone.stop()
         } catch (e: Exception) {
         }
     }
 
-    private fun loadInfo() {
+    private fun contimueGame() {
+        setVisible() 
+        firstPlayerPoints = 0
+        secondPlayerPoints = 0
+        firstPointsTextView.setText("$firstPlayerPoints")
+        secondPointsTextView.setText("$secondPlayerPoints")
+        firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER_GLOBAL_POINTS, 0)
+        secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER_GLOBAL_POINTS, 0)
+        firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+        secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+        turn = settings.getInt(TURN, 1)
+        if (turn == 2) {
+            firstPointsTextView.setTextColor(Color.GRAY)
+            secondPointsTextView.setTextColor(Color.GREEN)
+        }
+    }
+
+    private fun loadGame() {
         try {
             firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER_GLOBAL_POINTS, 0)
             secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER_GLOBAL_POINTS, 0)
@@ -574,7 +603,6 @@ class MainActivity : AppCompatActivity() {
             secondPlayerPoints = settings.getInt(SECOND_PLAYER_POINTS, 0)
             firstPointsTextView.setText("$firstPlayerPoints")
             secondPointsTextView.setText("$secondPlayerPoints")
-            checkEndGame = settings.getInt(CHECK_AND_GAME, 0)
 
             val turnsType = object : TypeToken<List<Int>>() {}.type
             cardsArray = gson.fromJson(settings.getString(ARRAY, ""), turnsType)
@@ -613,7 +641,6 @@ class MainActivity : AppCompatActivity() {
         editor.putInt(SECOND_PLAYER_GLOBAL_POINTS, secondPlayerGlobalPoints)
         editor.putInt(FIRST_PLAYER_POINTS, firstPlayerPoints)
         editor.putInt(SECOND_PLAYER_POINTS, secondPlayerPoints)
-        editor.putInt(CHECK_AND_GAME, checkEndGame)
         editor.putInt(TURN, turn)
         val jsonArray = gson.toJson(cardsArray)
         editor.putString(ARRAY, jsonArray)

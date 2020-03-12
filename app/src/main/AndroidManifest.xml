@@ -27,6 +27,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".PrefActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/PrefTheme"
             android:label="Preferences"/>
     </application>
 

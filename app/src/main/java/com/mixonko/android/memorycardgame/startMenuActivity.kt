@@ -20,13 +20,16 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var exit: Button
     lateinit var sp: SharedPreferences
 
-    lateinit var mediaPlayer: MediaPlayer
+    lateinit var mediaPlayerMusic: MediaPlayer
+    lateinit var mediaPlayerButtonsClick: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start_menu)
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
+
+        mediaPlayerButtonsClick = MediaPlayer.create(this, R.raw.buttons_sound)
 
         newGame = findViewById(R.id.new_game)
         loadGame = findViewById(R.id.load_game)
@@ -43,10 +46,9 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (sp.getBoolean("vibration", true)) {
-            val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            vibe.vibrate(40)
-        }
+        vibrate()
+        startButtonSound()
+
         when (v?.id) {
             R.id.new_game -> startActivity(Intent(this, MainActivity::class.java))
             R.id.load_game -> loadGame()
@@ -62,14 +64,28 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
+    private fun vibrate() {
+        if (sp.getBoolean("vibration", true)) {
+            val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vibe.vibrate(40)
+        }
+    }
+
+    private fun startButtonSound(){
+        if (sp.getBoolean("music", true)) {
+
+            mediaPlayerButtonsClick.start()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (sp.getBoolean("music", true)) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.music)
-            mediaPlayer.isLooping = true
-            mediaPlayer.start()
+            mediaPlayerMusic = MediaPlayer.create(this, R.raw.music)
+            mediaPlayerMusic.isLooping = true
+            mediaPlayerMusic.start()
         } else try {
-            mediaPlayer.stop()
+            mediaPlayerMusic.stop()
         }catch (e: Exception){}
 
     }
@@ -78,7 +94,7 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
     override fun onPause() {
         super.onPause()
         try {
-            mediaPlayer.stop()
+            mediaPlayerMusic.stop()
         }catch (e: Exception){}
     }
 
