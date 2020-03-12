@@ -20,21 +20,12 @@ import android.view.View.TRANSLATION_Y
 import android.widget.LinearLayout
 import android.view.animation.*
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_game.*
 import java.lang.Exception
-import java.util.ArrayList
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.util.*
 
 var backgroundStyle = 1
-
-var APP_PREFERENCES = "com.mixonko.android.memorycardgame.APP_PREFERENCES"
-var FIRST_PLAYER = "com.mixonko.android.memorycardgame.FIRST_PLAYER"
-var SECOND_PLAYER = "com.mixonko.android.memorycardgame.SECOND_PLAYER"
-var TURN = "com.mixonko.android.memorycardgame.TURN"
 
 class MainActivity : AppCompatActivity() {
 
@@ -107,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
     var checkEndGame = 0
 
-    val cardsArray =
+    var cardsArray =
         mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
 
     lateinit var sp: SharedPreferences
@@ -117,6 +108,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var mediaPlayer: MediaPlayer
     lateinit var soundPlayer: MediaPlayer
 
+    lateinit var gson: Gson
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -124,6 +117,8 @@ class MainActivity : AppCompatActivity() {
         settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
+
+        gson = Gson()
 
         findViewById()
 
@@ -149,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         imageView43.setTag(14)
         imageView44.setTag(15)
 
-//        Collections.shuffle(cardsArray)
+        Collections.shuffle(cardsArray)
 
         setOnClickListener()
     }
@@ -380,8 +375,6 @@ class MainActivity : AppCompatActivity() {
                 15 -> imageView44.visibility = View.INVISIBLE
             }
 
-
-
             if (turn == 1) {
                 firstPlayerPoints++
                 firstPointsTextView.setText("$firstPlayerPoints")
@@ -394,22 +387,8 @@ class MainActivity : AppCompatActivity() {
                 var soundPlayer = MediaPlayer.create(this, R.raw.not)
                 soundPlayer.start()
             }
-            imageView11.setImageResource(cardBack)
-            imageView12.setImageResource(cardBack)
-            imageView13.setImageResource(cardBack)
-            imageView14.setImageResource(cardBack)
-            imageView21.setImageResource(cardBack)
-            imageView22.setImageResource(cardBack)
-            imageView23.setImageResource(cardBack)
-            imageView24.setImageResource(cardBack)
-            imageView31.setImageResource(cardBack)
-            imageView32.setImageResource(cardBack)
-            imageView33.setImageResource(cardBack)
-            imageView34.setImageResource(cardBack)
-            imageView41.setImageResource(cardBack)
-            imageView42.setImageResource(cardBack)
-            imageView43.setImageResource(cardBack)
-            imageView44.setImageResource(cardBack)
+
+            showCardBack()
 
             if (turn == 1) {
                 turn = 2
@@ -424,6 +403,25 @@ class MainActivity : AppCompatActivity() {
         imageViewIsEnabled(true)
         checkEndGame()
 
+    }
+
+    private fun showCardBack() {
+        imageView11.setImageResource(cardBack)
+        imageView12.setImageResource(cardBack)
+        imageView13.setImageResource(cardBack)
+        imageView14.setImageResource(cardBack)
+        imageView21.setImageResource(cardBack)
+        imageView22.setImageResource(cardBack)
+        imageView23.setImageResource(cardBack)
+        imageView24.setImageResource(cardBack)
+        imageView31.setImageResource(cardBack)
+        imageView32.setImageResource(cardBack)
+        imageView33.setImageResource(cardBack)
+        imageView34.setImageResource(cardBack)
+        imageView41.setImageResource(cardBack)
+        imageView42.setImageResource(cardBack)
+        imageView43.setImageResource(cardBack)
+        imageView44.setImageResource(cardBack)
     }
 
     private fun imageViewIsEnabled(b: Boolean) {
@@ -446,7 +444,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkEndGame() {
-        if (checkEndGame == 4) {
+        if (imageView11.visibility == View.INVISIBLE && imageView12.visibility == View.INVISIBLE &&
+            imageView13.visibility == View.INVISIBLE && imageView14.visibility == View.INVISIBLE &&
+            imageView21.visibility == View.INVISIBLE && imageView22.visibility == View.INVISIBLE &&
+            imageView23.visibility == View.INVISIBLE && imageView24.visibility == View.INVISIBLE &&
+            imageView31.visibility == View.INVISIBLE && imageView32.visibility == View.INVISIBLE &&
+            imageView33.visibility == View.INVISIBLE && imageView34.visibility == View.INVISIBLE &&
+            imageView41.visibility == View.INVISIBLE && imageView42.visibility == View.INVISIBLE &&
+            imageView43.visibility == View.INVISIBLE && imageView44.visibility == View.INVISIBLE
+        ) {
+
             var message: String = ""
             if (firstPlayerPoints == secondPlayerPoints) {
                 message = "It's a draw!"
@@ -475,22 +482,26 @@ class MainActivity : AppCompatActivity() {
                     R.string.continue_game,
                     DialogInterface.OnClickListener { dialog, which ->
                         val intent = Intent(this@MainActivity, MainActivity::class.java)
-                        intent.putExtra(LOAD_GAME, 1)
+                        intent.putExtra(LOAD_GAME, 2)
                         if (backgroundStyle == 4) {
                             backgroundStyle = 1
                         } else backgroundStyle++
                         startActivity(intent)
+                        setVisibility()
                         finish()
-
                     })
                 .setNegativeButton(R.string.exit, DialogInterface.OnClickListener { dialog, which ->
                     finish()
                 }).show()
         }
+
+
     }
 
     override fun onResume() {
         super.onResume()
+
+
         if (sp.getBoolean("music", true)) {
             mediaPlayer = MediaPlayer.create(this, R.raw.music2)
             mediaPlayer.isLooping = true
@@ -502,37 +513,50 @@ class MainActivity : AppCompatActivity() {
 
         val intent = getIntent()
         val load = intent.getIntExtra(LOAD_GAME, 0)
-        if (load != 0) {
-            try {
-                firstGlobalPointsTextView.setText(settings.getInt(FIRST_PLAYER, 0).toString())
-                secondGlobalPointsTextView.setText(settings.getInt(SECOND_PLAYER, 0).toString())
-                firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER, 0)
-                secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER, 0)
-                turn = settings.getInt(TURN, 1)
-                if (turn == 2) {
-                    firstPointsTextView.setTextColor(Color.GRAY)
-                    secondPointsTextView.setTextColor(Color.GREEN)
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this, "LOADING ERROR", Toast.LENGTH_LONG).show()
-            }
-        } else {
-            firstPointsTextView.setText("0")
-            secondPointsTextView.setText("0")
+        if (load == 1) {
+            loadInfo()
+        }
+        if (load == 2) {
+            loadInfo()
+            firstPlayerPoints = 0
+            secondPlayerPoints = 0
+            firstPointsTextView.setText("$firstPlayerPoints")
+            secondPointsTextView.setText("$secondPlayerPoints")
+        }
+        if (load == 0) {
+            firstPlayerPoints = 0
+            secondPlayerPoints = 0
+            firstPointsTextView.setText("$firstPlayerPoints")
+            secondPointsTextView.setText("$secondPlayerPoints")
         }
 
+    }
 
+    private fun setVisibility() {
+        imageView11.visibility = View.VISIBLE
+        imageView12.visibility = View.VISIBLE
+        imageView13.visibility = View.VISIBLE
+        imageView14.visibility = View.VISIBLE
+        imageView21.visibility = View.VISIBLE
+        imageView22.visibility = View.VISIBLE
+        imageView23.visibility = View.VISIBLE
+        imageView24.visibility = View.VISIBLE
+        imageView31.visibility = View.VISIBLE
+        imageView32.visibility = View.VISIBLE
+        imageView33.visibility = View.VISIBLE
+        imageView34.visibility = View.VISIBLE
+        imageView41.visibility = View.VISIBLE
+        imageView42.visibility = View.VISIBLE
+        imageView43.visibility = View.VISIBLE
+        imageView44.visibility = View.VISIBLE
     }
 
 
     override fun onPause() {
         super.onPause()
-        editor = settings.edit()
-        editor.putInt(FIRST_PLAYER, firstPlayerGlobalPoints)
-        editor.putInt(SECOND_PLAYER, secondPlayerGlobalPoints)
-        editor.putInt(TURN, turn)
-                
-        editor.apply()
+
+        saveInfo()
+
         try {
             mediaPlayer.stop()
             soundPlayer.stop()
@@ -540,4 +564,78 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadInfo() {
+        try {
+            firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER_GLOBAL_POINTS, 0)
+            secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER_GLOBAL_POINTS, 0)
+            firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+            secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+            firstPlayerPoints = settings.getInt(FIRST_PLAYER_POINTS, 0)
+            secondPlayerPoints = settings.getInt(SECOND_PLAYER_POINTS, 0)
+            firstPointsTextView.setText("$firstPlayerPoints")
+            secondPointsTextView.setText("$secondPlayerPoints")
+            checkEndGame = settings.getInt(CHECK_AND_GAME, 0)
+
+            val turnsType = object : TypeToken<List<Int>>() {}.type
+            cardsArray = gson.fromJson(settings.getString(ARRAY, ""), turnsType)
+
+            imageView11.visibility = settings.getInt(IMAGE_VIEW_11_IS_VISIBLE, 1)
+            imageView12.visibility = settings.getInt(IMAGE_VIEW_12_IS_VISIBLE, 1)
+            imageView13.visibility = settings.getInt(IMAGE_VIEW_13_IS_VISIBLE, 1)
+            imageView14.visibility = settings.getInt(IMAGE_VIEW_14_IS_VISIBLE, 1)
+            imageView21.visibility = settings.getInt(IMAGE_VIEW_21_IS_VISIBLE, 1)
+            imageView22.visibility = settings.getInt(IMAGE_VIEW_22_IS_VISIBLE, 1)
+            imageView23.visibility = settings.getInt(IMAGE_VIEW_23_IS_VISIBLE, 1)
+            imageView24.visibility = settings.getInt(IMAGE_VIEW_24_IS_VISIBLE, 1)
+            imageView31.visibility = settings.getInt(IMAGE_VIEW_31_IS_VISIBLE, 1)
+            imageView32.visibility = settings.getInt(IMAGE_VIEW_32_IS_VISIBLE, 1)
+            imageView33.visibility = settings.getInt(IMAGE_VIEW_33_IS_VISIBLE, 1)
+            imageView34.visibility = settings.getInt(IMAGE_VIEW_34_IS_VISIBLE, 1)
+            imageView41.visibility = settings.getInt(IMAGE_VIEW_41_IS_VISIBLE, 1)
+            imageView42.visibility = settings.getInt(IMAGE_VIEW_42_IS_VISIBLE, 1)
+            imageView43.visibility = settings.getInt(IMAGE_VIEW_43_IS_VISIBLE, 1)
+            imageView44.visibility = settings.getInt(IMAGE_VIEW_44_IS_VISIBLE, 1)
+
+            turn = settings.getInt(TURN, 1)
+            if (turn == 2) {
+                firstPointsTextView.setTextColor(Color.GRAY)
+                secondPointsTextView.setTextColor(Color.GREEN)
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "LOADING ERROR", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun saveInfo() {
+
+        editor = settings.edit()
+        editor.putInt(FIRST_PLAYER_GLOBAL_POINTS, firstPlayerGlobalPoints)
+        editor.putInt(SECOND_PLAYER_GLOBAL_POINTS, secondPlayerGlobalPoints)
+        editor.putInt(FIRST_PLAYER_POINTS, firstPlayerPoints)
+        editor.putInt(SECOND_PLAYER_POINTS, secondPlayerPoints)
+        editor.putInt(CHECK_AND_GAME, checkEndGame)
+        editor.putInt(TURN, turn)
+        val jsonArray = gson.toJson(cardsArray)
+        editor.putString(ARRAY, jsonArray)
+        editor.putInt(IMAGE_VIEW_11_IS_VISIBLE, imageView11.visibility)
+        editor.putInt(IMAGE_VIEW_12_IS_VISIBLE, imageView12.visibility)
+        editor.putInt(IMAGE_VIEW_13_IS_VISIBLE, imageView13.visibility)
+        editor.putInt(IMAGE_VIEW_14_IS_VISIBLE, imageView14.visibility)
+        editor.putInt(IMAGE_VIEW_21_IS_VISIBLE, imageView21.visibility)
+        editor.putInt(IMAGE_VIEW_22_IS_VISIBLE, imageView22.visibility)
+        editor.putInt(IMAGE_VIEW_23_IS_VISIBLE, imageView23.visibility)
+        editor.putInt(IMAGE_VIEW_24_IS_VISIBLE, imageView24.visibility)
+        editor.putInt(IMAGE_VIEW_31_IS_VISIBLE, imageView31.visibility)
+        editor.putInt(IMAGE_VIEW_32_IS_VISIBLE, imageView32.visibility)
+        editor.putInt(IMAGE_VIEW_33_IS_VISIBLE, imageView33.visibility)
+        editor.putInt(IMAGE_VIEW_34_IS_VISIBLE, imageView34.visibility)
+        editor.putInt(IMAGE_VIEW_41_IS_VISIBLE, imageView41.visibility)
+        editor.putInt(IMAGE_VIEW_42_IS_VISIBLE, imageView42.visibility)
+        editor.putInt(IMAGE_VIEW_43_IS_VISIBLE, imageView43.visibility)
+        editor.putInt(IMAGE_VIEW_44_IS_VISIBLE, imageView44.visibility)
+        editor.apply()
+    }
+
+
 }
+

@@ -26,14 +26,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center"
-        >
+        android:gravity="center" >
 
         <include
             layout="@layout/images"
             android:layout_width="match_parent"
             android:layout_height="500dp"
             android:elevation="@android:dimen/notification_large_icon_width" />
+
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/total_score"
+            android:textColor="@color/colorWhite"
+            android:textSize="25sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -71,9 +76,6 @@
             </FrameLayout>
 
         </LinearLayout>
-
-
-
 
     </LinearLayout>
 

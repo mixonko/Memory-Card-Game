@@ -12,8 +12,6 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import java.lang.Exception
 
-val LOAD_GAME = "com.mixonko.android.memorycardgame.LOAD_GAME"
-
 class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var newGame: Button
