@@ -1,46 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:layout_gravity="bottom">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/bg_menu"/>
-
-
+        android:id="@+id/bg_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_menu"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="bottom|center">
 
         <Button
-            android:id="@+id/new_game"
-            style="@style/Buttons"
-            android:text="@string/new_game" />
+            android:id="@+id/play"
+            android:layout_width="283dp"
+            android:layout_height="107dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/play" />
 
         <Button
-            android:id="@+id/load_game"
-            style="@style/Buttons"
-            android:text="@string/load_game" />
+            android:id="@+id/setting"
+            android:layout_width="194dp"
+            android:layout_height="73dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/setting"
+            android:elevation="4dp" />
 
         <Button
-            android:id="@+id/settings"
-            style="@style/Buttons"
-            android:text="@string/settings" />
-
-        <Button
-            android:id="@+id/exit"
-            style="@style/Buttons"
-            android:text="@string/exit" />
+            android:id="@+id/support"
+            android:layout_width="194dp"
+            android:layout_height="73dp"
+            android:layout_marginBottom="61dp"
+            android:background="@drawable/support" />
 
     </LinearLayout>
-
-
 
 </FrameLayout>

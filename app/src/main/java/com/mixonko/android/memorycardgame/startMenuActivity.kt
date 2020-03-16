@@ -1,5 +1,6 @@
 package com.mixonko.android.memorycardgame
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,6 +9,9 @@ import android.os.Bundle
 import android.os.Vibrator
 import android.preference.PreferenceManager
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.view.animation.BounceInterpolator
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import java.lang.Exception
@@ -15,9 +19,8 @@ import java.lang.Exception
 class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var newGame: Button
-    lateinit var loadGame: Button
     lateinit var settings: Button
-    lateinit var exit: Button
+    lateinit var support: Button
     lateinit var sp: SharedPreferences
 
     lateinit var mediaPlayerMusic: MediaPlayer
@@ -25,24 +28,24 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_start_menu)
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
 
         mediaPlayerButtonsClick = MediaPlayer.create(this, R.raw.buttons_sound)
 
-        newGame = findViewById(R.id.new_game)
-        loadGame = findViewById(R.id.load_game)
-        settings = findViewById(R.id.settings)
-        exit = findViewById(R.id.exit)
+        newGame = findViewById(R.id.play)
+        settings = findViewById(R.id.setting)
+        support = findViewById(R.id.support)
 
         newGame.setOnClickListener(this)
 
-        loadGame.setOnClickListener(this)
-
         settings.setOnClickListener(this)
 
-        exit.setOnClickListener(this)
+        support.setOnClickListener(this)
+
+        startButtonsAnimation()
     }
 
     override fun onClick(v: View?) {
@@ -50,18 +53,10 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
         startButtonSound()
 
         when (v?.id) {
-            R.id.new_game -> startActivity(Intent(this, MainActivity::class.java))
-            R.id.load_game -> loadGame()
-            R.id.settings ->  startActivity(Intent(this, PrefActivity::class.java))
-            R.id.exit -> finish()
+            R.id.play -> startActivity(Intent(this, GameActivity::class.java))
+            R.id.setting ->  startActivity(Intent(this, PrefActivity::class.java))
+            R.id.support -> finish()
         }
-    }
-
-    private fun loadGame(){
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra(LOAD_GAME, 1)
-        startActivity(intent)
-
     }
 
     private fun vibrate() {
@@ -90,12 +85,26 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-
     override fun onPause() {
         super.onPause()
         try {
             mediaPlayerMusic.stop()
         }catch (e: Exception){}
+    }
+
+    private fun startButtonsAnimation() {
+        val bounceInterpolator = BounceInterpolator()
+        val objectAnimator1 = ObjectAnimator.ofFloat(newGame, View.TRANSLATION_Y, -700f, 0f)
+        objectAnimator1.setInterpolator(bounceInterpolator)
+        objectAnimator1.setDuration(900).start()
+
+        val objectAnimator3 = ObjectAnimator.ofFloat(settings, View.TRANSLATION_Y, 200f, 0f)
+        objectAnimator3.setInterpolator(bounceInterpolator)
+        objectAnimator3.setDuration(900).start()
+
+        val objectAnimator4 = ObjectAnimator.ofFloat(support, View.TRANSLATION_Y, 300f, 0f)
+        objectAnimator4.setInterpolator(bounceInterpolator)
+        objectAnimator4.setDuration(900).start()
     }
 
 }
