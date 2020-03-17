@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="Settings">
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="music"
-            android:title="@string/music"
-            android:background="@drawable/sound_check_box_selector"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="vibration"
-            android:title="@string/vibration"
-            android:background="@drawable/sound_check_box_selector" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="music"
+        android:title="@string/music" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="vibration"
+        android:title="@string/vibration" />
     </PreferenceCategory>
 </PreferenceScreen>

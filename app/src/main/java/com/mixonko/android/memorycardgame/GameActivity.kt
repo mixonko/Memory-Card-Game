@@ -1,26 +1,32 @@
 package com.mixonko.android.memorycardgame
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import android.os.Vibrator
 import android.animation.ObjectAnimator
-import android.content.Intent
 import android.content.SharedPreferences
 import android.media.MediaPlayer
-import android.os.SystemClock
 import android.preference.PreferenceManager
 import android.view.View.TRANSLATION_Y
 import android.view.animation.*
 import android.widget.*
 import java.lang.Exception
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.util.*
 
-class GameActivity : AppCompatActivity() {
+var backgroundStyle = 1
 
-    private val cardBack = R.drawable.slot
+class MainActivity : AppCompatActivity() {
+
+    private val cardBack = R.drawable.card_back
 
     private val image11 = R.drawable.ic_image11
     private val image12 = R.drawable.ic_image12
@@ -39,6 +45,11 @@ class GameActivity : AppCompatActivity() {
     private val image27 = R.drawable.ic_image27
     private val image28 = R.drawable.ic_image28
 
+    private val background1 = R.drawable.background1
+    private val background2 = R.drawable.background2
+    private val background3 = R.drawable.background3
+    private val background4 = R.drawable.background4
+
     private lateinit var imageView11: ImageView
     private lateinit var imageView12: ImageView
     private lateinit var imageView13: ImageView
@@ -56,15 +67,17 @@ class GameActivity : AppCompatActivity() {
     private lateinit var imageView43: ImageView
     private lateinit var imageView44: ImageView
 
-    private lateinit var blackView: ImageView
-    private lateinit var winView: ImageView
-    private lateinit var gameOverView: ImageView
-    private lateinit var newGameView: ImageView
+    private lateinit var background: ImageView
 
     private lateinit var line1: LinearLayout
     private lateinit var line2: LinearLayout
     private lateinit var line3: LinearLayout
     private lateinit var line4: LinearLayout
+
+    private lateinit var firstPointsTextView: TextView
+    private lateinit var secondPointsTextView: TextView
+    private lateinit var firstGlobalPointsTextView: TextView
+    private lateinit var secondGlobalPointsTextView: TextView
 
     private var firstCard: Int? = 0
     private var secondCard: Int? = 0
@@ -74,8 +87,14 @@ class GameActivity : AppCompatActivity() {
 
     private var cardNumber: Int = 1
 
+    private var turn: Int = 1
+    private var firstPlayerPoints: Int = 0
+    private var secondPlayerPoints: Int = 0
+    private var firstPlayerGlobalPoints: Int = 0
+    private var secondPlayerGlobalPoints: Int = 0
+
     private var cardsArray =
-        mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
+          mutableListOf(11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28)
 
     private lateinit var sp: SharedPreferences
     private lateinit var settings: SharedPreferences
@@ -85,10 +104,10 @@ class GameActivity : AppCompatActivity() {
     private lateinit var soundPlayerDone: MediaPlayer
     private lateinit var soundPlayerNot: MediaPlayer
 
+    private lateinit var gson: Gson
+
     private lateinit var firstImage: ImageView
     private lateinit var secondImage: ImageView
-
-    private lateinit var chronometer: Chronometer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,39 +116,15 @@ class GameActivity : AppCompatActivity() {
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
 
+        gson = Gson()
+
         findViewById()
 
         startLayoutAnimation()
 
-        setTag()
+        firstPointsTextView.setTextColor(Color.GREEN)
+        secondPointsTextView.setTextColor(Color.GRAY)
 
-//        Collections.shuffle(cardsArray)
-
-        setOnClickListener()
-
-        startChronometer()
-    }
-
-    private fun startLayoutAnimation() {
-        val bounceInterpolator = BounceInterpolator()
-        val objectAnimator1 = ObjectAnimator.ofFloat(line1, TRANSLATION_Y, -100f, 0f)
-        objectAnimator1.setInterpolator(bounceInterpolator)
-        objectAnimator1.setDuration(900).start()
-
-        val objectAnimator2 = ObjectAnimator.ofFloat(line2, TRANSLATION_Y, -100f, 0f)
-        objectAnimator2.setInterpolator(bounceInterpolator)
-        objectAnimator2.setDuration(900).start()
-
-        val objectAnimator3 = ObjectAnimator.ofFloat(line3, TRANSLATION_Y, 100f, 0f)
-        objectAnimator3.setInterpolator(bounceInterpolator)
-        objectAnimator3.setDuration(900).start()
-
-        val objectAnimator4 = ObjectAnimator.ofFloat(line4, TRANSLATION_Y, 100f, 0f)
-        objectAnimator4.setInterpolator(bounceInterpolator)
-        objectAnimator4.setDuration(900).start()
-    }
-
-    private fun setTag() {
         imageView11.setTag(0)
         imageView12.setTag(1)
         imageView13.setTag(2)
@@ -146,6 +141,30 @@ class GameActivity : AppCompatActivity() {
         imageView42.setTag(13)
         imageView43.setTag(14)
         imageView44.setTag(15)
+
+        Collections.shuffle(cardsArray)
+
+        setOnClickListener()
+
+    }
+
+    private fun startLayoutAnimation() {
+        val bounceInterpolator = BounceInterpolator()
+        val objectAnimator1 = ObjectAnimator.ofFloat(line1, TRANSLATION_Y, -850f, 0f)
+        objectAnimator1.setInterpolator(bounceInterpolator)
+        objectAnimator1.setDuration(800).start()
+
+        val objectAnimator2 = ObjectAnimator.ofFloat(line2, TRANSLATION_Y, -500f, 0f)
+        objectAnimator2.setInterpolator(bounceInterpolator)
+        objectAnimator2.setDuration(800).start()
+
+        val objectAnimator3 = ObjectAnimator.ofFloat(line3, TRANSLATION_Y, 500f, 0f)
+        objectAnimator3.setInterpolator(bounceInterpolator)
+        objectAnimator3.setDuration(800).start()
+
+        val objectAnimator4 = ObjectAnimator.ofFloat(line4, TRANSLATION_Y, 850f, 0f)
+        objectAnimator4.setInterpolator(bounceInterpolator)
+        objectAnimator4.setDuration(800).start()
     }
 
     private fun findViewById() {
@@ -165,17 +184,24 @@ class GameActivity : AppCompatActivity() {
         imageView42 = findViewById(R.id.imageView42)
         imageView43 = findViewById(R.id.imageView43)
         imageView44 = findViewById(R.id.imageView44)
-        blackView = findViewById(R.id.black_view)
-        winView = findViewById(R.id.win_view)
-        gameOverView = findViewById(R.id.game_over_view)
-        newGameView = findViewById(R.id.new_game_view)
+
+        background = findViewById(R.id.background)
+        when (backgroundStyle) {
+            1 -> background.setImageResource(background1)
+            2 -> background.setImageResource(background2)
+            3 -> background.setImageResource(background3)
+            4 -> background.setImageResource(background4)
+        }
+
+        firstPointsTextView = findViewById(R.id.points)
+        secondPointsTextView = findViewById(R.id.topPoints)
+        firstGlobalPointsTextView = findViewById(R.id.first_global_points_tv)
+        secondGlobalPointsTextView = findViewById(R.id.second_global_points_tv)
 
         line1 = findViewById(R.id.line_1)
         line2 = findViewById(R.id.line_2)
         line3 = findViewById(R.id.line_3)
         line4 = findViewById(R.id.line_4)
-
-        chronometer = findViewById(R.id.chronometer)
     }
 
     private fun setOnClickListener() {
@@ -242,21 +268,9 @@ class GameActivity : AppCompatActivity() {
         imageView44.setOnClickListener {
             val theCard = it.getTag().toString().toInt()
             doStuff(imageView44, theCard)
-        }
-        newGameView.setOnClickListener {
-            startActivity(Intent(this, GameActivity::class.java))
-            finish()
+
         }
 
-    }
-
-    private fun startChronometer(){
-        chronometer.base = SystemClock.elapsedRealtime()
-        chronometer.start()
-    }
-
-    private fun stopChronometer(){
-        chronometer.stop()
     }
 
     private fun showCardImage(imageView: ImageView, image: Int) {
@@ -296,18 +310,18 @@ class GameActivity : AppCompatActivity() {
 
     }
 
-    private fun startDoneAnimation(vararg imageView: ImageView) {
+    private fun startDoneAnimation(vararg imageView: ImageView){
         imageView.forEach {
             it.animate().withLayer()
                 .scaleX(0.1f)
-                .scaleXBy(0.2f)
+                .scaleXBy(0.3f)
                 .scaleY(0.1f)
-                .scaleYBy(0.2f)
+                .scaleYBy(0.3f)
                 .setDuration(600)
                 .withEndAction(
                     Runnable() {
                         it.animate().withLayer()
-                            .scaleX(0.001f)
+                            .scaleX (0.001f)
                             .scaleY(0.001f)
                             .setDuration(400)
                             .start()
@@ -316,7 +330,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun startNotAnimation(vararg imageView: ImageView) {
+    private fun startNotAnimation(vararg imageView: ImageView){
         imageView.forEach {
             it.animate().withLayer()
                 .rotationY(40f)
@@ -392,6 +406,7 @@ class GameActivity : AppCompatActivity() {
                 val handler = Handler()
                 handler.postDelayed(Runnable {
                     startNotAnimation(firstImage, secondImage)
+
                 }, 300)
 
             }
@@ -445,9 +460,25 @@ class GameActivity : AppCompatActivity() {
                 15 -> imageView44.visibility = View.INVISIBLE
             }
 
+            if (turn == 1) {
+                firstPlayerPoints++
+                firstPointsTextView.setText("$firstPlayerPoints")
+            } else if (turn == 2) {
+                secondPlayerPoints++
+                secondPointsTextView.setText("$secondPlayerPoints")
+            }
         } else {
             showBackCardImage(firstImage, secondImage)
 
+            if (turn == 1) {
+                turn = 2
+                firstPointsTextView.setTextColor(Color.GRAY)
+                secondPointsTextView.setTextColor(Color.GREEN)
+            } else if (turn == 2) {
+                turn = 1
+                firstPointsTextView.setTextColor(Color.GREEN)
+                secondPointsTextView.setTextColor(Color.GRAY)
+            }
         }
         imageViewIsEnabled(true)
         checkEndGame()
@@ -499,37 +530,71 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun checkEndGame() {
-        if (imageView11.visibility == View.INVISIBLE
-//            && imageView12.visibility == View.INVISIBLE &&
-//            imageView13.visibility == View.INVISIBLE && imageView14.visibility == View.INVISIBLE &&
-//            imageView21.visibility == View.INVISIBLE && imageView22.visibility == View.INVISIBLE &&
-//            imageView23.visibility == View.INVISIBLE && imageView24.visibility == View.INVISIBLE &&
-//            imageView31.visibility == View.INVISIBLE && imageView32.visibility == View.INVISIBLE &&
-//            imageView33.visibility == View.INVISIBLE && imageView34.visibility == View.INVISIBLE &&
-//            imageView41.visibility == View.INVISIBLE && imageView42.visibility == View.INVISIBLE &&
-//            imageView43.visibility == View.INVISIBLE && imageView44.visibility == View.INVISIBLE
+        if (imageView11.visibility == View.INVISIBLE && imageView12.visibility == View.INVISIBLE &&
+            imageView13.visibility == View.INVISIBLE && imageView14.visibility == View.INVISIBLE &&
+            imageView21.visibility == View.INVISIBLE && imageView22.visibility == View.INVISIBLE &&
+            imageView23.visibility == View.INVISIBLE && imageView24.visibility == View.INVISIBLE &&
+            imageView31.visibility == View.INVISIBLE && imageView32.visibility == View.INVISIBLE &&
+            imageView33.visibility == View.INVISIBLE && imageView34.visibility == View.INVISIBLE &&
+            imageView41.visibility == View.INVISIBLE && imageView42.visibility == View.INVISIBLE &&
+            imageView43.visibility == View.INVISIBLE && imageView44.visibility == View.INVISIBLE
         ) {
-            Toast.makeText(this, "${chronometer.timeElapsed}", Toast.LENGTH_SHORT).show()
-            stopChronometer()
-            showGameOver()
-            saveInfo()
+
+            var message: String = ""
+            if (firstPlayerPoints == secondPlayerPoints) {
+                message = "It's a draw!"
+            }
+            if (firstPlayerPoints > secondPlayerPoints) {
+                message = "First Player Win!"
+            }
+
+            if (firstPlayerPoints < secondPlayerPoints) {
+                message = "Second Player Win!"
+            }
+
+            AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setTitle(R.string.game_over)
+                .setMessage(message)
+                .setPositiveButton(
+                    R.string.continue_game,
+                    DialogInterface.OnClickListener { dialog, which ->
+                        val intent = Intent(this@MainActivity, MainActivity::class.java)
+                        intent.putExtra(LOAD_GAME, 2)
+                        if (backgroundStyle == 4) {
+                            backgroundStyle = 1
+                        } else backgroundStyle++
+
+                        if (firstPlayerPoints == secondPlayerPoints) {
+                            firstPlayerGlobalPoints++
+                            secondPlayerGlobalPoints++
+                            firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+                            secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+                        }
+                        if (firstPlayerPoints > secondPlayerPoints) {
+                            firstPlayerGlobalPoints++
+                            firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+                        }
+
+                        if (firstPlayerPoints < secondPlayerPoints) {
+                            secondPlayerGlobalPoints++
+                            secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+                        }
+
+                        startActivity(intent)
+                        finish()
+                    })
+                .setNegativeButton(R.string.exit, DialogInterface.OnClickListener { dialog, which ->
+                    finish()
+                }).show()
         }
 
-    }
 
-    private fun showGameOver(){
-        blackView.visibility = View.VISIBLE
-        winView.visibility = View.VISIBLE
-        val handler = Handler()
-        handler.postDelayed(Runnable {
-            winView.visibility = View.INVISIBLE
-            gameOverView.visibility = View.VISIBLE
-            newGameView.visibility = View.VISIBLE
-        }, 2000)
     }
 
     override fun onResume() {
         super.onResume()
+
         if (musicCheck()) {
             mediaPlayer = MediaPlayer.create(this, R.raw.music2)
             mediaPlayer.isLooping = true
@@ -538,12 +603,43 @@ class GameActivity : AppCompatActivity() {
             mediaPlayer.stop()
         } catch (e: Exception) {
         }
+
+        val intent = getIntent()
+        val isLoadGame = intent.getIntExtra(LOAD_GAME, 0)
+        if (isLoadGame == 1) {
+            loadGame()
+            checkEndGame()
+        }
+        if (isLoadGame == 2) {
+            contimueGame()
+        }
+
     }
+
+    private fun setVisible() {
+        imageView11.visibility = View.VISIBLE
+        imageView12.visibility = View.VISIBLE
+        imageView13.visibility = View.VISIBLE
+        imageView14.visibility = View.VISIBLE
+        imageView21.visibility = View.VISIBLE
+        imageView22.visibility = View.VISIBLE
+        imageView23.visibility = View.VISIBLE
+        imageView24.visibility = View.VISIBLE
+        imageView31.visibility = View.VISIBLE
+        imageView32.visibility = View.VISIBLE
+        imageView33.visibility = View.VISIBLE
+        imageView34.visibility = View.VISIBLE
+        imageView41.visibility = View.VISIBLE
+        imageView42.visibility = View.VISIBLE
+        imageView43.visibility = View.VISIBLE
+        imageView44.visibility = View.VISIBLE
+    }
+
 
     override fun onPause() {
         super.onPause()
 
-//        saveInfo()
+        saveInfo()
 
         try {
             mediaPlayer.stop()
@@ -553,15 +649,92 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    private fun contimueGame() {
+        setVisible()
+        firstPlayerPoints = 0
+        secondPlayerPoints = 0
+        firstPointsTextView.setText("$firstPlayerPoints")
+        secondPointsTextView.setText("$secondPlayerPoints")
+        firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER_GLOBAL_POINTS, 0)
+        secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER_GLOBAL_POINTS, 0)
+        firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+        secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+        turn = settings.getInt(TURN, 1)
+        if (turn == 2) {
+            firstPointsTextView.setTextColor(Color.GRAY)
+            secondPointsTextView.setTextColor(Color.GREEN)
+        }
+    }
+
+    private fun loadGame() {
+        try {
+            firstPlayerGlobalPoints = settings.getInt(FIRST_PLAYER_GLOBAL_POINTS, 0)
+            secondPlayerGlobalPoints = settings.getInt(SECOND_PLAYER_GLOBAL_POINTS, 0)
+            firstGlobalPointsTextView.setText("$firstPlayerGlobalPoints")
+            secondGlobalPointsTextView.setText("$secondPlayerGlobalPoints")
+            firstPlayerPoints = settings.getInt(FIRST_PLAYER_POINTS, 0)
+            secondPlayerPoints = settings.getInt(SECOND_PLAYER_POINTS, 0)
+            firstPointsTextView.setText("$firstPlayerPoints")
+            secondPointsTextView.setText("$secondPlayerPoints")
+
+            val turnsType = object : TypeToken<List<Int>>() {}.type
+            cardsArray = gson.fromJson(settings.getString(ARRAY, ""), turnsType)
+
+            imageView11.visibility = settings.getInt(IMAGE_VIEW_11_IS_VISIBLE, 1)
+            imageView12.visibility = settings.getInt(IMAGE_VIEW_12_IS_VISIBLE, 1)
+            imageView13.visibility = settings.getInt(IMAGE_VIEW_13_IS_VISIBLE, 1)
+            imageView14.visibility = settings.getInt(IMAGE_VIEW_14_IS_VISIBLE, 1)
+            imageView21.visibility = settings.getInt(IMAGE_VIEW_21_IS_VISIBLE, 1)
+            imageView22.visibility = settings.getInt(IMAGE_VIEW_22_IS_VISIBLE, 1)
+            imageView23.visibility = settings.getInt(IMAGE_VIEW_23_IS_VISIBLE, 1)
+            imageView24.visibility = settings.getInt(IMAGE_VIEW_24_IS_VISIBLE, 1)
+            imageView31.visibility = settings.getInt(IMAGE_VIEW_31_IS_VISIBLE, 1)
+            imageView32.visibility = settings.getInt(IMAGE_VIEW_32_IS_VISIBLE, 1)
+            imageView33.visibility = settings.getInt(IMAGE_VIEW_33_IS_VISIBLE, 1)
+            imageView34.visibility = settings.getInt(IMAGE_VIEW_34_IS_VISIBLE, 1)
+            imageView41.visibility = settings.getInt(IMAGE_VIEW_41_IS_VISIBLE, 1)
+            imageView42.visibility = settings.getInt(IMAGE_VIEW_42_IS_VISIBLE, 1)
+            imageView43.visibility = settings.getInt(IMAGE_VIEW_43_IS_VISIBLE, 1)
+            imageView44.visibility = settings.getInt(IMAGE_VIEW_44_IS_VISIBLE, 1)
+
+            turn = settings.getInt(TURN, 1)
+            if (turn == 2) {
+                firstPointsTextView.setTextColor(Color.GRAY)
+                secondPointsTextView.setTextColor(Color.GREEN)
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "LOADING ERROR", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun saveInfo() {
 
         editor = settings.edit()
-        val time = chronometer.timeElapsed
-        val timeText = chronometer.text.toString()
-        editor.putLong(TIME, time)
-        editor.putString(TIME_TEXT, timeText)
+        editor.putInt(FIRST_PLAYER_GLOBAL_POINTS, firstPlayerGlobalPoints)
+        editor.putInt(SECOND_PLAYER_GLOBAL_POINTS, secondPlayerGlobalPoints)
+        editor.putInt(FIRST_PLAYER_POINTS, firstPlayerPoints)
+        editor.putInt(SECOND_PLAYER_POINTS, secondPlayerPoints)
+        editor.putInt(TURN, turn)
+        val jsonArray = gson.toJson(cardsArray)
+        editor.putString(ARRAY, jsonArray)
+        editor.putInt(IMAGE_VIEW_11_IS_VISIBLE, imageView11.visibility)
+        editor.putInt(IMAGE_VIEW_12_IS_VISIBLE, imageView12.visibility)
+        editor.putInt(IMAGE_VIEW_13_IS_VISIBLE, imageView13.visibility)
+        editor.putInt(IMAGE_VIEW_14_IS_VISIBLE, imageView14.visibility)
+        editor.putInt(IMAGE_VIEW_21_IS_VISIBLE, imageView21.visibility)
+        editor.putInt(IMAGE_VIEW_22_IS_VISIBLE, imageView22.visibility)
+        editor.putInt(IMAGE_VIEW_23_IS_VISIBLE, imageView23.visibility)
+        editor.putInt(IMAGE_VIEW_24_IS_VISIBLE, imageView24.visibility)
+        editor.putInt(IMAGE_VIEW_31_IS_VISIBLE, imageView31.visibility)
+        editor.putInt(IMAGE_VIEW_32_IS_VISIBLE, imageView32.visibility)
+        editor.putInt(IMAGE_VIEW_33_IS_VISIBLE, imageView33.visibility)
+        editor.putInt(IMAGE_VIEW_34_IS_VISIBLE, imageView34.visibility)
+        editor.putInt(IMAGE_VIEW_41_IS_VISIBLE, imageView41.visibility)
+        editor.putInt(IMAGE_VIEW_42_IS_VISIBLE, imageView42.visibility)
+        editor.putInt(IMAGE_VIEW_43_IS_VISIBLE, imageView43.visibility)
+        editor.putInt(IMAGE_VIEW_44_IS_VISIBLE, imageView44.visibility)
         editor.apply()
     }
-
+ 
 }
 
