@@ -10,6 +10,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.content.SharedPreferences
 import android.media.MediaPlayer
+import android.os.SystemClock
 import android.preference.PreferenceManager
 import android.view.View.TRANSLATION_Y
 import android.view.animation.*
@@ -87,6 +88,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var firstImage: ImageView
     private lateinit var secondImage: ImageView
 
+    private lateinit var chronometer: Chronometer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -100,10 +103,11 @@ class GameActivity : AppCompatActivity() {
 
         setTag()
 
-        Collections.shuffle(cardsArray)
+//        Collections.shuffle(cardsArray)
 
         setOnClickListener()
 
+        startChronometer()
     }
 
     private fun startLayoutAnimation() {
@@ -170,6 +174,8 @@ class GameActivity : AppCompatActivity() {
         line2 = findViewById(R.id.line_2)
         line3 = findViewById(R.id.line_3)
         line4 = findViewById(R.id.line_4)
+
+        chronometer = findViewById(R.id.chronometer)
     }
 
     private fun setOnClickListener() {
@@ -242,6 +248,15 @@ class GameActivity : AppCompatActivity() {
             finish()
         }
 
+    }
+
+    private fun startChronometer(){
+        chronometer.base = SystemClock.elapsedRealtime()
+        chronometer.start()
+    }
+
+    private fun stopChronometer(){
+        chronometer.stop()
     }
 
     private fun showCardImage(imageView: ImageView, image: Int) {
@@ -484,25 +499,33 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun checkEndGame() {
-        if (imageView11.visibility == View.INVISIBLE && imageView12.visibility == View.INVISIBLE &&
-            imageView13.visibility == View.INVISIBLE && imageView14.visibility == View.INVISIBLE &&
-            imageView21.visibility == View.INVISIBLE && imageView22.visibility == View.INVISIBLE &&
-            imageView23.visibility == View.INVISIBLE && imageView24.visibility == View.INVISIBLE &&
-            imageView31.visibility == View.INVISIBLE && imageView32.visibility == View.INVISIBLE &&
-            imageView33.visibility == View.INVISIBLE && imageView34.visibility == View.INVISIBLE &&
-            imageView41.visibility == View.INVISIBLE && imageView42.visibility == View.INVISIBLE &&
-            imageView43.visibility == View.INVISIBLE && imageView44.visibility == View.INVISIBLE
+        if (imageView11.visibility == View.INVISIBLE
+//            && imageView12.visibility == View.INVISIBLE &&
+//            imageView13.visibility == View.INVISIBLE && imageView14.visibility == View.INVISIBLE &&
+//            imageView21.visibility == View.INVISIBLE && imageView22.visibility == View.INVISIBLE &&
+//            imageView23.visibility == View.INVISIBLE && imageView24.visibility == View.INVISIBLE &&
+//            imageView31.visibility == View.INVISIBLE && imageView32.visibility == View.INVISIBLE &&
+//            imageView33.visibility == View.INVISIBLE && imageView34.visibility == View.INVISIBLE &&
+//            imageView41.visibility == View.INVISIBLE && imageView42.visibility == View.INVISIBLE &&
+//            imageView43.visibility == View.INVISIBLE && imageView44.visibility == View.INVISIBLE
         ) {
-            blackView.visibility = View.VISIBLE
-            winView.visibility = View.VISIBLE
-            val handler = Handler()
-            handler.postDelayed(Runnable {
-                winView.visibility = View.INVISIBLE
-                gameOverView.visibility = View.VISIBLE
-                newGameView.visibility = View.VISIBLE
-            }, 2000)
+            Toast.makeText(this, "${chronometer.timeElapsed}", Toast.LENGTH_SHORT).show()
+            stopChronometer()
+            showGameOver()
+            saveInfo()
         }
 
+    }
+
+    private fun showGameOver(){
+        blackView.visibility = View.VISIBLE
+        winView.visibility = View.VISIBLE
+        val handler = Handler()
+        handler.postDelayed(Runnable {
+            winView.visibility = View.INVISIBLE
+            gameOverView.visibility = View.VISIBLE
+            newGameView.visibility = View.VISIBLE
+        }, 2000)
     }
 
     override fun onResume() {
@@ -517,25 +540,6 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-//    private fun setVisible() {
-//        imageView11.visibility = View.VISIBLE
-//        imageView12.visibility = View.VISIBLE
-//        imageView13.visibility = View.VISIBLE
-//        imageView14.visibility = View.VISIBLE
-//        imageView21.visibility = View.VISIBLE
-//        imageView22.visibility = View.VISIBLE
-//        imageView23.visibility = View.VISIBLE
-//        imageView24.visibility = View.VISIBLE
-//        imageView31.visibility = View.VISIBLE
-//        imageView32.visibility = View.VISIBLE
-//        imageView33.visibility = View.VISIBLE
-//        imageView34.visibility = View.VISIBLE
-//        imageView41.visibility = View.VISIBLE
-//        imageView42.visibility = View.VISIBLE
-//        imageView43.visibility = View.VISIBLE
-//        imageView44.visibility = View.VISIBLE
-//    }
-
     override fun onPause() {
         super.onPause()
 
@@ -549,12 +553,15 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-//    private fun saveInfo() {
-//
-//        editor = settings.edit()
-//
-//        editor.apply()
-//    }
+    private fun saveInfo() {
+
+        editor = settings.edit()
+        val time = chronometer.timeElapsed
+        val timeText = chronometer.text.toString()
+        editor.putLong(TIME, time)
+        editor.putString(TIME_TEXT, timeText)
+        editor.apply()
+    }
 
 }
 

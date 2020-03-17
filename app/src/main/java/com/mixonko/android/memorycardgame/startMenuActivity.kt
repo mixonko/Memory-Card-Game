@@ -48,40 +48,45 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
         startButtonsAnimation()
     }
 
-    override fun onClick(v: View?) {
+    override fun onClick(v: View) {
         vibrate()
         startButtonSound()
 
-        when (v?.id) {
+        when (v.id) {
             R.id.play -> startActivity(Intent(this, GameActivity::class.java))
-            R.id.setting ->  startActivity(Intent(this, PrefActivity::class.java))
+            R.id.setting -> startActivity(Intent(this, PrefActivity::class.java))
             R.id.support -> finish()
         }
     }
 
     private fun vibrate() {
-        if (sp.getBoolean("vibration", true)) {
+        if (vibrationCheck()) {
             val vibe = this.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             vibe.vibrate(40)
         }
     }
 
-    private fun startButtonSound(){
-        if (sp.getBoolean("music", true)) {
+    private fun startButtonSound() {
+        if (musicCheck()) {
 
             mediaPlayerButtonsClick.start()
         }
     }
 
+    private fun musicCheck(): Boolean = sp.getBoolean("music", true)
+
+    private fun vibrationCheck(): Boolean = sp.getBoolean("vibration", true)
+
     override fun onResume() {
         super.onResume()
-        if (sp.getBoolean("music", true)) {
+        if (musicCheck()) {
             mediaPlayerMusic = MediaPlayer.create(this, R.raw.music)
             mediaPlayerMusic.isLooping = true
             mediaPlayerMusic.start()
         } else try {
             mediaPlayerMusic.stop()
-        }catch (e: Exception){}
+        } catch (e: Exception) {
+        }
 
     }
 
@@ -89,7 +94,8 @@ class StartMenuActivity : AppCompatActivity(), View.OnClickListener {
         super.onPause()
         try {
             mediaPlayerMusic.stop()
-        }catch (e: Exception){}
+        } catch (e: Exception) {
+        }
     }
 
     private fun startButtonsAnimation() {

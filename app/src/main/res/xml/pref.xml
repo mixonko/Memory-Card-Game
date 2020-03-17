@@ -5,10 +5,12 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="music"
-            android:title="@string/music" />
+            android:title="@string/music"
+            android:background="@drawable/sound_check_box_selector"/>
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="vibration"
-            android:title="@string/vibration" />
+            android:title="@string/vibration"
+            android:background="@drawable/sound_check_box_selector" />
     </PreferenceCategory>
 </PreferenceScreen>
